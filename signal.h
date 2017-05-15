@@ -1,7 +1,10 @@
 #ifndef SIGNAL_H
 #define SIGNAL_H
 #include <QVector>
-
+#include <QPoint>
+#include <qwt_plot.h>
+#include <qmath.h>
+#include <qwt_scale_div.h>
 class Signal
 {
 public:
@@ -17,15 +20,16 @@ public:
     void integrate();
     QVector<qreal>* getTime();
     QVector<qreal>* data();
-
+    void setQwtPlotPointer (QwtPlot* _plot);
     void addSample(quint8 sample);
+    qreal measure();
 
 
 private:
     bool start;
     quint32 samplingFrequencyAllChannels;
     quint16 samplingFrequencyOneChannel;
-
+    QwtPlot* plot;
     qint16 startLevel;
     QVector<qreal> _data, x;
 };

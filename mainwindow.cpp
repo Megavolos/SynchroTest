@@ -6,12 +6,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    writeDialog = new writeToFileDialog(this);
+    setupCOMport();
+    setupQwt();
 
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete writeDialog;
 }
 
 void MainWindow::on_openComPortSettingsDialog_triggered()
@@ -25,9 +29,10 @@ void MainWindow::on_openComPortSettingsDialog_triggered()
 
 void MainWindow::on_openWriteToFileDialog_triggered()
 {
-    writeToFileDialog writeDialog(this);
-    writeDialog.exec();
-    pathToWriteFiles=writeDialog.getPath();
+    writeDialog->exec();
+    pathToWriteFiles=writeDialog->getPath();
+    writeDialog->getFileDevice()->setFileName(pathToWriteFiles);
+
 
 }
 
@@ -37,19 +42,73 @@ void MainWindow::setupCOMport()
     Port *PortNew = new Port();//Создаем обьект по классу
     PortNew->moveToThread(thread_New);//помешаем класс  в поток
     PortNew->thisPort.moveToThread(thread_New);//Помещаем сам порт в поток
-    connect(PortNew, SIGNAL(error_(QString)), this, SLOT(Print(QString)));//Лог ошибок
+    connect(PortNew, SIGNAL(error_(QString)), this, SLOT(error(QString)));//Лог ошибок
     connect(thread_New, SIGNAL(started()), PortNew, SLOT(process_Port()));//Переназначения метода run
     connect(PortNew, SIGNAL(finished_Port()), thread_New, SLOT(quit()));//Переназначение метода выход
     connect(thread_New, SIGNAL(finished()), PortNew, SLOT(deleteLater()));//Удалить к чертям поток
     connect(PortNew, SIGNAL(finished_Port()), thread_New, SLOT(deleteLater()));//Удалить к чертям поток
     connect(this,SIGNAL(savesettings(QString,int,int,int,int,int)),PortNew,SLOT(Write_Settings_Port(QString,int,int,int,int,int)));//Слот - ввод настроек!
-    connect(ui->actionStart, SIGNAL(triggered(bool)),PortNew,SLOT(ConnectPort()));
-    connect(ui->actionStop, SIGNAL(triggered(bool)),PortNew,SLOT(DisconnectPort()));
+    connect(ui->actionStart, SIGNAL(triggered()),PortNew,SLOT(ConnectPort()));
+    connect(ui->actionStart, SIGNAL(triggered()),this,SLOT(startWriteToFile()));
+    connect(ui->actionStop, SIGNAL(triggered()),PortNew,SLOT(DisconnectPort()));
+    connect(ui->actionStop, SIGNAL(triggered()),this,SLOT(stopWtiteToFile()));
+
     connect(PortNew, SIGNAL(outPort(QByteArray)), this, SLOT(Print(QByteArray)));//Лог ошибок
     connect(this,SIGNAL(writeData(QByteArray)),PortNew,SLOT(WriteToPort(QByteArray)));
     thread_New->start();
+    ui->actionStop->setChecked(true);
+    ui->actionStop->setEnabled(false);
+}
+void MainWindow::error (QString err)
+{
+    QMessageBox message(this);
+    message.setText(err);
+
+    if (!err.contains("Открыт", Qt::CaseInsensitive))
+    {
+        if (!err.contains("Закрыт", Qt::CaseInsensitive)) message.exec();
+        ui->actionStart->setChecked(false);
+        stopWtiteToFile();
+        ui->actionStop->setChecked(true);
+        ui->actionStop->setEnabled(false);
+        ui->actionStart->setEnabled(true);
+
+
+        return;
+    }
+    ui->actionStop->setChecked(false);
+    ui->actionStop->setEnabled(true);
+
+    ui->actionStart->setChecked(true);
+    ui->actionStart->setEnabled(false);
 }
 
+void MainWindow::startWriteToFile()
+{
+    if (!writeDialog->getPath().isEmpty() && writeDialog->getWriteEnabledState())
+    {
+        if ( writeDialog->getFileDevice()->open(QIODevice::ReadWrite) )
+        {
+            writeDialog->setWriteEnabledState(true);
+            datastream.setDevice(writeDialog->getFileDevice());
+        }
+        else
+        {
+            qDebug("Error opening file");
+            writeDialog->setWriteEnabledState(false);
+
+        }
+    }
+    else
+    {
+        qDebug("Path is empty or Write disabled");
+    }
+
+}
+void MainWindow::stopWtiteToFile()
+{
+    writeDialog->getFileDevice()->close();
+}
 
 
 void MainWindow::setupQwt()
@@ -102,12 +161,22 @@ void MainWindow::setupQwt()
     curvesMems.at(1)->attach(ui->qwtPlot);
     curvesPiezo.at(0)->attach(ui->qwtPlot_2);
     curvesPiezo.at(1)->attach(ui->qwtPlot_2);
+    MEMS0.setQwtPlotPointer(ui->qwtPlot);
+    MEMS1.setQwtPlotPointer(ui->qwtPlot);
+    PIEZO0.setQwtPlotPointer(ui->qwtPlot_2);
+    PIEZO1.setQwtPlotPointer(ui->qwtPlot_2);
+
+    ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom,true);
+    ui->qwtPlot_2->setAxisAutoScale(QwtPlot::xBottom,true);
+
+
 
 }
 
 void MainWindow::Print(QByteArray data)
 {
     bool ok;
+    qreal MEMS0_angle,MEMS1_angle,PIEZO0_angle,PIEZO1_angle,MEMS_diff,PIEZO_diff;
     if (ui->actionStart->isChecked() &&startRecieved<4)
     {
         for (int i=0; i<data.size();i++)
@@ -127,7 +196,7 @@ void MainWindow::Print(QByteArray data)
     {
         for (int i=0; i<data.size();i++)
         {
-            datastream<<data.at(i);
+            if (writeDialog->getWriteEnabledState()) datastream<<data.at(i);
             switch (channelSwitch)  {
             case 0:
                 MEMS0.addSample((quint8)data.at(i));
@@ -137,6 +206,8 @@ void MainWindow::Print(QByteArray data)
                     {
                         MEMS0.filter(ui->lpfMemsEdit->text());
                         curvesMems.at(0)->setSamples(*MEMS0.getTime(),*MEMS0.data());
+                        MEMS0_angle=MEMS0.measure();
+                        ui->MEMS0_angle_label->setText(QString::number(MEMS0_angle,'f',2));
                     }
                 }
                 break;
@@ -152,6 +223,8 @@ void MainWindow::Print(QByteArray data)
                             PIEZO0.integrate();
                         }
                         curvesPiezo.at(0)->setSamples(*PIEZO0.getTime(),*PIEZO0.data());
+                        PIEZO0_angle=PIEZO0.measure();
+                        ui->PIEZO0_angle_label->setText(QString::number(PIEZO0_angle,'f',2));
                     }
                 }
                 break;
@@ -163,7 +236,10 @@ void MainWindow::Print(QByteArray data)
                     {
                         MEMS1.filter(ui->lpfMemsEdit->text());
                         curvesMems.at(1)->setSamples(*MEMS1.getTime(),*MEMS1.data());
-
+                        MEMS1_angle=MEMS1.measure();
+                        ui->MEMS1_angle_label->setText(QString::number(MEMS1_angle,'f',2));
+                        MEMS_diff=MEMS0_angle-MEMS1_angle;
+                        ui->MEMS_diff_label->setText((QString::number(MEMS_diff,'f',2)));
                     }
                 }
                 break;
@@ -179,6 +255,12 @@ void MainWindow::Print(QByteArray data)
                             PIEZO1.integrate();
                         }
                         curvesPiezo.at(1)->setSamples(*PIEZO1.getTime(),*PIEZO1.data());
+                        PIEZO1_angle=PIEZO1.measure();
+                        ui->PIEZO1_angle_label->setText(QString::number(PIEZO1_angle,'f',2));
+                        PIEZO_diff=PIEZO0_angle-PIEZO1_angle;
+                        ui->PIEZO_diff_label->setText((QString::number(PIEZO_diff,'f',2)));
+
+
                     }
                 }
                 break;
@@ -193,3 +275,42 @@ void MainWindow::Print(QByteArray data)
    // ui->consol->moveCursor(QTextCursor::End);//Scroll
 }
 
+
+
+void MainWindow::on_memsYMax_lineEdit_returnPressed()
+{
+    bool ok;
+    qreal min_y, newmax;
+    QwtInterval interval;
+
+    interval = ui->qwtPlot->axisScaleDiv(QwtPlot::yLeft).interval();
+    min_y=(int)interval.minValue();
+    newmax = ui->memsYMax_lineEdit->text().toDouble(&ok);
+    ui->qwtPlot->setAxisScale(QwtPlot::yLeft,min_y,newmax,ui->MEMSStep_lineEdit->text().toDouble(&ok) );
+    ui->qwtPlot->replot();
+}
+
+
+void MainWindow::on_piezoYMax_lineEdit_returnPressed()
+{
+    bool ok;
+    qreal min_y, newmax;
+    QwtInterval interval;
+
+    interval = ui->qwtPlot_2->axisScaleDiv(QwtPlot::yLeft).interval();
+    min_y=(int)interval.minValue();
+    newmax = ui->piezoYMax_lineEdit->text().toDouble(&ok);
+    ui->qwtPlot_2->setAxisScale(QwtPlot::yLeft,min_y,newmax,ui->PIEZOStep_lineEdit->text().toDouble(&ok) );
+    ui->qwtPlot_2->replot();
+}
+
+void MainWindow::on_PIEZOStep_lineEdit_returnPressed()
+{
+    on_piezoYMax_lineEdit_returnPressed();
+}
+
+void MainWindow::on_MEMSStep_lineEdit_returnPressed()
+{
+    on_memsYMax_lineEdit_returnPressed();
+
+}

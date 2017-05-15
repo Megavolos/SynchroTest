@@ -3,7 +3,8 @@
 
 #include <QDialog>
 #include <QFileDialog>
-
+#include <QFile>
+#include <QFileInfo>
 namespace Ui {
 class writeToFileDialog;
 }
@@ -18,6 +19,9 @@ public:
 
     bool getWriteEnabledState();
     QString getPath();
+    bool fileExists(QString path);
+    QFile* getFileDevice();
+    void setWriteEnabledState(bool state);
 
 private slots:
 
@@ -30,6 +34,7 @@ private:
     Ui::writeToFileDialog *ui;
     bool writeEnabled;
     QString path;
+    QFile* file;
 };
 
 #endif // WRITETOFILEDIALOG_H

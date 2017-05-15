@@ -6,11 +6,14 @@ writeToFileDialog::writeToFileDialog(QWidget *parent) :
     ui(new Ui::writeToFileDialog)
 {
     ui->setupUi(this);
+    file = new QFile();
+    writeEnabled = true;
 }
 
 writeToFileDialog::~writeToFileDialog()
 {
     delete ui;
+    delete file;
 }
 
 
@@ -18,6 +21,11 @@ writeToFileDialog::~writeToFileDialog()
 bool writeToFileDialog::getWriteEnabledState()
 {
     return writeEnabled;
+}
+
+void writeToFileDialog::setWriteEnabledState(bool state)
+{
+    writeEnabled=state;
 }
 QString writeToFileDialog::getPath()
 {
@@ -32,6 +40,34 @@ void writeToFileDialog::on_writeAllowed_toggled(bool checked)
 
 void writeToFileDialog::on_openFolder_clicked()
 {
-    path=QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/home",QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks);
+    QString dir=QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/home",QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks);
+    for (int i=0; i<100; i++)
+    {
+        path=dir+"/"+QString::number(i)+".dat";
+        if (!fileExists(path))
+        {
+            file->setFileName(path);
 
+            break;
+        }
+
+    }
+
+}
+QFile* writeToFileDialog::getFileDevice()
+{
+    return file;
+}
+
+bool writeToFileDialog::fileExists(QString path) {
+    QFileInfo check_file(path);
+    // check if file exists and if yes: Is it really a file and no directory?
+    if (check_file.exists() && check_file.isFile())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

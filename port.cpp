@@ -88,6 +88,9 @@ void Port::handleError(QSerialPort::SerialPortError error)//проверка о�
 }//
 void  Port::DisconnectPort(){//Отключаем порт
     if(thisPort.isOpen()){
+        QByteArray d;
+        d.append('0');
+        WriteToPort(d);
         thisPort.close();
         error_(SettingsPort.name.toLocal8Bit() + " >> Закрыт!\r");
     }

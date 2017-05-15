@@ -22,6 +22,8 @@
 #include <port.h>
 #include <qthread.h>
 #include <signal.h>
+#include <qdebug.h>
+#include <qmessagebox.h>
 namespace Ui {
 class MainWindow;
 }
@@ -52,6 +54,8 @@ public:
     uchar startRecieved;
     uchar channelSwitch;
     qint32 receivedBytes;
+    writeToFileDialog* writeDialog;
+
 
 
     void setupCOMport(void);
@@ -60,9 +64,22 @@ private slots:
     void on_openComPortSettingsDialog_triggered();
 
     void on_openWriteToFileDialog_triggered();
-
-
+    void startWriteToFile();
+    void stopWtiteToFile();
+    void error (QString err);
     void Print(QByteArray data);
+
+
+    void on_memsYMax_lineEdit_returnPressed();
+
+
+
+    void on_piezoYMax_lineEdit_returnPressed();
+
+    void on_PIEZOStep_lineEdit_returnPressed();
+
+    void on_MEMSStep_lineEdit_returnPressed();
+
 signals:
 
     void savesettings(QString name, int baudrate, int DataBits, int Parity, int StopBits, int FlowControl);
