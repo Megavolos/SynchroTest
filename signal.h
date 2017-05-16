@@ -16,13 +16,18 @@ public:
     void setStartLevel (qint16 level);
     bool isSignalPresent ();
     bool isSignalEnd();
-    void filter(QString text );
+    void filter();
     void integrate();
     QVector<qreal>* getTime();
     QVector<qreal>* data();
     void setQwtPlotPointer (QwtPlot* _plot);
     void addSample(quint8 sample);
     qreal measure();
+    void clear();
+    void setLPFCoeff (qreal coeff);
+    void clearNoSignalData();
+    bool isNotFalseSignal();
+    void setFalseSignalLevel(quint8 level);
 
 
 private:
@@ -32,6 +37,9 @@ private:
     QwtPlot* plot;
     qint16 startLevel;
     QVector<qreal> _data, x;
+    qreal LPFcoeff;
+    qreal peak, peakPrev;
+    quint8 falseSignalLevel;
 };
 
 #endif // SIGNAL_H

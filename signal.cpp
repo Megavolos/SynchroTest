@@ -2,7 +2,17 @@
 
 Signal::Signal()
 {
-    startLevel=0;
+    startLevel=5;
+    start=false;
+    setSamplingFrequencyAllChannels(1000);
+    LPFcoeff=1;
+    peak=0;
+    peakPrev=0;
+
+}
+void Signal::setLPFCoeff (qreal coeff)
+{
+    LPFcoeff=coeff;
 }
 
 void Signal::setStart(bool state)
@@ -20,12 +30,17 @@ void Signal::setStartLevel(qint16 level)
 
 bool Signal::isSignalPresent()
 {
-    if (!getStart())
+    int pos=0;
+    if (!getStart() && !_data.isEmpty())
     {
         if (_data.last() > startLevel)
         {
             setStart(true);
-            _data.erase(0,_data.end()-2);
+            pos=_data.size();
+            if(_data.size()>1)
+            {
+                _data.remove(0,_data.size()-2);
+            }
             return true;
         }
         else
@@ -80,7 +95,7 @@ bool Signal::isSignalEnd()
 {
    if (_data.size()>40)
    {
-       if (_data.last()==0)
+       if (_data.last()>0)
        {
            setStart(false); //сбрасываем флаг старта для ожидания последующего старта
            return true;
@@ -101,35 +116,69 @@ void Signal::setSamplingFrequencyAllChannels(quint32 freq)
 }
 quint32 Signal::getSamplingFrequencyOneChannel()
 {
-    return samplingFrequencyAllChannels/4;
+    quint32 freq=samplingFrequencyAllChannels/4;
+    return freq;
 }
 
 QVector<qreal>* Signal::getTime()
 {
-    qreal T=1/getSamplingFrequencyOneChannel();
+    qreal T=1/(qreal)getSamplingFrequencyOneChannel();
     x.resize(_data.size());
-    for (int i=1; i<_data.size()-1;i++)
+    for (int i=1; i<_data.size();i++)
     {
         x[i]=x.at(i-1)+T;
     }
     return &x;
 }
-void Signal::filter(QString text )              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
+void Signal::filter()              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
 {
-    bool ok;
-    qreal coeff=text.toInt(&ok);
+
+
     QVector<qreal> out(_data.size());                                         //Выход фильтра
     for (int i=1; i<_data.size(); i++)
     {
-        out[i]=coeff*_data.at(i) + (1.0-coeff)*out.at(i-1);                   //сам фильтр
+        out[i]=LPFcoeff*_data.at(i) + (1.0-LPFcoeff)*out.at(i-1);                   //сам фильтр
+        if (out.at(i)>peak)
+        {
+            peakPrev=peak;
+            peak=out.at(i);
+        }
+
     }
     _data=out;
 
 }
+void Signal::setFalseSignalLevel(quint8 level)
+{
+    falseSignalLevel=level;
+}
+
+bool Signal::isNotFalseSignal()
+{
+    if (peak>falseSignalLevel)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 void Signal::setQwtPlotPointer (QwtPlot* _plot)
 {
     plot=_plot;
 }
+void Signal::clearNoSignalData()
+{
+    qreal time;
+    time=_data.size()*1/(qreal)getSamplingFrequencyOneChannel();
+    if (time>1)
+    {
+        clear();
+    }
+}
+
 qreal Signal::measure()
 {
 
@@ -193,5 +242,14 @@ qreal Signal::measure()
 
     }
     return -3;
+
+}
+void Signal::clear()
+{
+    _data.clear();
+    start=false;
+    x.clear();
+    peak=0;
+    peakPrev=0;
 
 }

@@ -55,7 +55,7 @@ public:
     uchar channelSwitch;
     qint32 receivedBytes;
     writeToFileDialog* writeDialog;
-
+    quint8 resizeCounter;
 
 
     void setupCOMport(void);
@@ -79,6 +79,10 @@ private slots:
     void on_PIEZOStep_lineEdit_returnPressed();
 
     void on_MEMSStep_lineEdit_returnPressed();
+
+    void on_lpfPiezoEdit_returnPressed();
+
+    void on_lpfMemsEdit_returnPressed();
 
 signals:
 
