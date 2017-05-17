@@ -63,6 +63,10 @@ void Signal::addSample(quint8 sample)
 {
     _data.append(sample);
 }
+void Signal::setFSLSlot(int arg1)
+{
+    falseSignalLevel=arg1;
+}
 
 void Signal::integrate()
 {
@@ -91,11 +95,13 @@ void Signal::integrate()
  * равным нулю, что означает окончание сигнала.
  *
  */
+
+
 bool Signal::isSignalEnd()
 {
    if (_data.size()>40)
    {
-       if (_data.last()>0)
+       if (_data.last()>0 && _data.last() <falseSignalLevel )
        {
            setStart(false); //сбрасываем флаг старта для ожидания последующего старта
            return true;
@@ -122,9 +128,16 @@ quint32 Signal::getSamplingFrequencyOneChannel()
 
 QVector<qreal>* Signal::getTime()
 {
+    //максимальное значение по x = xMax
+    //период дескритизации = T
+    //количество семплов на экране = xMax/T
+    qreal xMax;
+    quint32 numPoints;
     qreal T=1/(qreal)getSamplingFrequencyOneChannel();
-    x.resize(_data.size());
-    for (int i=1; i<_data.size();i++)
+    xMax= plot->axisScaleDiv(QwtPlot::xBottom).interval().maxValue();
+    numPoints = xMax/(qreal)T;
+    x.resize(numPoints);
+    for (int i=1; i<numPoints;i++)
     {
         x[i]=x.at(i-1)+T;
     }

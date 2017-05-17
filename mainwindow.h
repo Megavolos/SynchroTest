@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <qdebug.h>
 #include <qmessagebox.h>
+#include <diagramsettingswindow.h>
 namespace Ui {
 class MainWindow;
 }
@@ -56,6 +57,7 @@ public:
     qint32 receivedBytes;
     writeToFileDialog* writeDialog;
     quint8 resizeCounter;
+    DiagramSettingsWindow* diagramSettings;
 
 
     void setupCOMport(void);
@@ -83,6 +85,12 @@ private slots:
     void on_lpfPiezoEdit_returnPressed();
 
     void on_lpfMemsEdit_returnPressed();
+
+    void on_MemsLimitChagned(double limit);
+    void on_PiezoLimitChagned(double limit);
+    void on_PiezoStepChagned(double step);
+    void on_MemsStepChagned(double step);
+
 
 signals:
 

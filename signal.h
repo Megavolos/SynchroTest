@@ -1,13 +1,16 @@
 #ifndef SIGNAL_H
 #define SIGNAL_H
+#include <QObject>
 #include <QVector>
 #include <QPoint>
 #include <qwt_plot.h>
 #include <qmath.h>
 #include <qwt_scale_div.h>
-class Signal
+class Signal : public QObject
 {
+    Q_OBJECT
 public:
+
     Signal();
     void setStart (bool state);
     void setSamplingFrequencyAllChannels(quint32 freq);
@@ -28,7 +31,8 @@ public:
     void clearNoSignalData();
     bool isNotFalseSignal();
     void setFalseSignalLevel(quint8 level);
-
+public slots:
+    void setFSLSlot(int arg1);
 
 private:
     bool start;

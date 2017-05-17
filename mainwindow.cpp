@@ -7,17 +7,24 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     writeDialog = new writeToFileDialog(this);
+    diagramSettings = new DiagramSettingsWindow(this);
     setupCOMport();
     setupQwt();
     startRecieved=0;
     channelSwitch=0;
     resizeCounter=0;
+
+    diagramSettings->setModal(false);
+    diagramSettings->show();
+
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete writeDialog;
+    delete diagramSettings;
 }
 
 void MainWindow::on_openComPortSettingsDialog_triggered()
@@ -54,12 +61,21 @@ void MainWindow::setupCOMport()
     connect(ui->actionStart, SIGNAL(triggered()),this,SLOT(startWriteToFile()));
     connect(ui->actionStop, SIGNAL(triggered()),PortNew,SLOT(DisconnectPort()));
     connect(ui->actionStop, SIGNAL(triggered()),this,SLOT(stopWtiteToFile()));
-
     connect(PortNew, SIGNAL(outPort(QByteArray)), this, SLOT(Print(QByteArray)));//Лог ошибок
     connect(this,SIGNAL(writeData(QByteArray)),PortNew,SLOT(WriteToPort(QByteArray)));
     thread_New->start();
     ui->actionStop->setChecked(true);
     ui->actionStop->setEnabled(false);
+
+    connect((diagramSettings->spin0), SIGNAL(valueChanged(int)), &PIEZO0,SLOT(setFSLSlot(int)));
+    connect(diagramSettings->spin1, SIGNAL(valueChanged(int)), &PIEZO1,SLOT(setFSLSlot(int)));
+    connect(diagramSettings->tLimitMems, SIGNAL(valueChanged(double)), this, SLOT(on_MemsLimitChagned(double)));
+    connect(diagramSettings->tLimitPiezo, SIGNAL(valueChanged(double)), this, SLOT(on_PiezoLimitChagned(double)));
+    connect(diagramSettings->tStepMems, SIGNAL(valueChanged(double)), this, SLOT(on_MemsStepChagned(double)));
+    connect(diagramSettings->tStepPiezo, SIGNAL(valueChanged(double)), this, SLOT(on_PiezoStepChagned(double)));
+
+
+
 }
 void MainWindow::error (QString err)
 {
@@ -172,15 +188,65 @@ void MainWindow::setupQwt()
     PIEZO0.setQwtPlotPointer(ui->qwtPlot_2);
     PIEZO1.setQwtPlotPointer(ui->qwtPlot_2);
 
-    ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom,true);
-    ui->qwtPlot_2->setAxisAutoScale(QwtPlot::xBottom,true);
+    ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom,false);
+    ui->qwtPlot_2->setAxisAutoScale(QwtPlot::xBottom,false);
     ui->qwtPlot->setAxisAutoScale(QwtPlot::yLeft,true);
     ui->qwtPlot_2->setAxisAutoScale(QwtPlot::yLeft,true);
 
-    MEMS0.setFalseSignalLevel(30);
-    PIEZO0.setFalseSignalLevel(5);
-    MEMS1.setFalseSignalLevel(30);
-    PIEZO1.setFalseSignalLevel(30);
+   // MEMS0.setFalseSignalLevel(30);
+   // PIEZO0.setFalseSignalLevel(5);
+  //  MEMS1.setFalseSignalLevel(30);
+   // PIEZO1.setFalseSignalLevel(30);
+
+    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,1,0.1 );
+    ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,1,0.1 );
+
+
+
+}
+
+
+void MainWindow::on_MemsLimitChagned(double limit)
+{
+    bool ok;
+    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,limit,ui->MEMSStep_lineEdit->text().toDouble(&ok) );
+    ui->qwtPlot->replot();
+
+}
+
+void MainWindow::on_PiezoLimitChagned(double limit)
+{
+    bool ok;
+    double step=diagramSettings->tStepPiezo->text().toDouble(&ok);
+    ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,limit,step );
+
+
+}
+
+void MainWindow::on_PiezoStepChagned(double step)
+{
+     bool ok;
+     qreal max_x;
+     QwtInterval interval;
+     //double step=diagramSettings->tStepPiezo->text().toDouble(&ok);
+
+     interval = ui->qwtPlot_2->axisScaleDiv(QwtPlot::xBottom).interval();
+     max_x=interval.maxValue();
+     ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,max_x,step );
+     ui->qwtPlot_2->replot();
+
+}
+
+void MainWindow::on_MemsStepChagned(double step)
+{
+    bool ok;
+    qreal max_x;
+    QwtInterval interval;
+
+    interval = ui->qwtPlot->axisScaleDiv(QwtPlot::xBottom).interval();
+    max_x=(int)interval.maxValue();
+    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,max_x,step );
+    ui->qwtPlot->replot();
 
 }
 
