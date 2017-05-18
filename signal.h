@@ -12,6 +12,7 @@ class Signal : public QObject
 public:
 
     Signal();
+    bool isMems;
     void setStart (bool state);
     void setSamplingFrequencyAllChannels(quint32 freq);
     quint32 getSamplingFrequencyOneChannel();
@@ -31,18 +32,21 @@ public:
     void clearNoSignalData();
     bool isNotFalseSignal();
     void setFalseSignalLevel(quint8 level);
+    void setIsMems(bool state);
+    bool getSignalEnd();
+    void setSignalEnd(bool state);
 public slots:
     void setFSLSlot(int arg1);
 
 private:
-    bool start;
+    bool start,signalEnd;
     quint32 samplingFrequencyAllChannels;
     quint16 samplingFrequencyOneChannel;
     QwtPlot* plot;
     qint16 startLevel;
     QVector<qreal> _data, x;
     qreal LPFcoeff;
-    qreal peak, peakPrev;
+    qreal peak, peakPrev,min,max,minPrev,maxPrev;
     quint8 falseSignalLevel;
 };
 

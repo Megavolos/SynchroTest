@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>902</width>
-    <height>595</height>
+    <width>918</width>
+    <height>726</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -179,7 +179,7 @@
        <item row="0" column="1" alignment="Qt::AlignHCenter">
         <widget class="QLineEdit" name="lpfPiezoEdit">
          <property name="text">
-          <string>1</string>
+          <string>0.95</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -243,7 +243,7 @@
          </size>
         </property>
         <property name="text">
-         <string>2000</string>
+         <string>120</string>
         </property>
        </widget>
       </item>
@@ -290,7 +290,7 @@
          </size>
         </property>
         <property name="text">
-         <string>100</string>
+         <string>10</string>
         </property>
        </widget>
       </item>
@@ -303,7 +303,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>902</width>
+     <width>918</width>
      <height>19</height>
     </rect>
    </property>

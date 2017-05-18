@@ -8,6 +8,8 @@ Signal::Signal()
     LPFcoeff=1;
     peak=0;
     peakPrev=0;
+    isMems=false;
+    signalEnd=false;
 
 }
 void Signal::setLPFCoeff (qreal coeff)
@@ -23,35 +25,51 @@ bool Signal::getStart()
 {
     return start;
 }
+bool Signal::getSignalEnd()
+{
+    return signalEnd;
+}
+void Signal::setSignalEnd(bool state)
+{
+    signalEnd=state;
+}
 void Signal::setStartLevel(qint16 level)
 {
     startLevel=level;
 }
+void Signal::setIsMems(bool state)
+{
+    isMems=state;
+    peak=255;
+}
 
 bool Signal::isSignalPresent()
 {
-    int pos=0;
-    if (!getStart() && !_data.isEmpty())
+    if (!isMems)
     {
-        if (_data.last() > startLevel)
+        if (!getStart() && !_data.isEmpty())
         {
-            setStart(true);
-            pos=_data.size();
-            if(_data.size()>1)
+            if (_data.last() > startLevel)
             {
-                _data.remove(0,_data.size()-2);
+                setStart(true);
+                setSignalEnd(false);
+                if(_data.size()>1)
+                {
+                    _data.remove(0,_data.size()-2);
+                }
+                return true;
             }
-            return true;
+            else
+            {
+                return false;
+            }
         }
         else
         {
-            return false;
+            return true;
         }
     }
-    else
-    {
-        return true;
-    }
+
 }
 
 QVector<qreal>* Signal::data()
@@ -101,14 +119,18 @@ bool Signal::isSignalEnd()
 {
    if (_data.size()>40)
    {
-       if (_data.last()>0 && _data.last() <falseSignalLevel )
+       if (!isMems)
        {
-           setStart(false); //сбрасываем флаг старта для ожидания последующего старта
-           return true;
-       }
-       else
-       {
-           return false;
+           if (_data.last() <=falseSignalLevel )
+           {
+               setStart(false); //сбрасываем флаг старта для ожидания последующего старта
+               setSignalEnd(true);
+               return true;
+           }
+           else
+           {
+               return false;
+           }
        }
    }
    else
@@ -178,6 +200,7 @@ bool Signal::isNotFalseSignal()
     }
 }
 
+
 void Signal::setQwtPlotPointer (QwtPlot* _plot)
 {
     plot=_plot;
@@ -204,8 +227,8 @@ qreal Signal::measure()
     QwtScaleDiv scalediv;
     interval = plot->axisScaleDiv(QwtPlot::xBottom).interval();
     scalediv = plot->axisScaleDiv(QwtPlot::xBottom);
-    max_x=(int)interval.maxValue();
-    min_x=(int)interval.minValue();
+    max_x=interval.maxValue();
+    min_x=interval.minValue();
     interval = plot->axisScaleDiv(QwtPlot::yRight).interval();
 
 
