@@ -218,21 +218,24 @@ void Signal::clearNoSignalData()
 qreal Signal::measure()
 {
 
-    int min_x=0, max_x=0,skips=0,prev_y=0;
+    int skips=0;
+    qreal min_x=0,max_x=0,prev_y=0;
     QVector <qreal> result;
     qreal trans=0;
     qreal angle;
     QPoint point1,point2;
     QwtInterval interval;
     QwtScaleDiv scalediv;
+    qreal T=1/(qreal)getSamplingFrequencyOneChannel();
+
     interval = plot->axisScaleDiv(QwtPlot::xBottom).interval();
     scalediv = plot->axisScaleDiv(QwtPlot::xBottom);
     max_x=interval.maxValue();
     min_x=interval.minValue();
     interval = plot->axisScaleDiv(QwtPlot::yRight).interval();
+    numPoints = max_x/(qreal)T;
 
-
-    for (int i = min_x; i<max_x;i++)
+    for (int i = 0; i<numPoints;i++)
     {
         if (skips) skips++;
         if (_data.at(i)>800 && point1.isNull())
@@ -240,7 +243,7 @@ qreal Signal::measure()
             skips++;
             point1.setX(i);
             point1.setY(_data.at(i));
-            trans=plot->canvasMap(QwtPlot::yRight).transform(point1.y());
+            trans=plot->canvasMap(QwtPlot::yLeft).transform(point1.y());
             point1.setY(trans);
             trans=plot->canvasMap(QwtPlot::xBottom).transform(point1.x());
             point1.setX(trans);
@@ -252,7 +255,7 @@ qreal Signal::measure()
                 skips=0;
                 point2.setX(i);
                 point2.setY(_data.at(i));
-                trans=plot->canvasMap(QwtPlot::yRight).transform(point2.y());
+                trans=plot->canvasMap(QwtPlot::yLeft).transform(point2.y());
                 point2.setY(trans);
                 trans=plot->canvasMap(QwtPlot::xBottom).transform(point2.x());
                 point2.setX(trans);
