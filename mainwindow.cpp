@@ -378,6 +378,17 @@ void MainWindow::Print(QByteArray data)
                         {
                             curvesPiezo.at(1)->setSamples(*PIEZO1.getTime(),*PIEZO1.data());
                             ui->qwtPlot_2->replot();
+                            if(ui->IntegratePiezo->isChecked())
+                            {
+                                ui->qwtPlot_2->repaint();
+
+                                PIEZO1_angle=PIEZO1.measure();
+                                ui->PIEZO1_angle_label->setText(QString::number(PIEZO1_angle,'f',2));
+                                diffWindow->setPiezoAngleSample(PIEZO1_angle);
+                                PIEZO_diff=PIEZO1_angle-PIEZO0_angle;
+                                
+
+                            }
                         }
                         else
                         {
@@ -386,11 +397,6 @@ void MainWindow::Print(QByteArray data)
 
                         }
                         PIEZO1.clear();
-                       // PIEZO1_angle=PIEZO1.measure();
-                       // ui->PIEZO1_angle_label->setText(QString::number(PIEZO1_angle,'f',2));
-                       // PIEZO_diff=PIEZO0_angle-PIEZO1_angle;
-                       //ui->PIEZO_diff_label->setText((QString::number(PIEZO_diff,'f',2)));
-
 
                     }
                 }
