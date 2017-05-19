@@ -18,7 +18,8 @@ public:
     explicit diffGraphWindow(QWidget *parent = 0);
     ~diffGraphWindow();
     void setMemsAngleSample (qreal angle);
-    void setPiezoAngleSample (qreal angle);
+    void setPiezoAngleSample (quint8 channel, qreal angle);
+    void setDiffSample(qreal diff);
 
 
 private:
