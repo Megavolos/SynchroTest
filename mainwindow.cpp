@@ -325,7 +325,7 @@ void MainWindow::Print(QByteArray data)
 
                                 PIEZO0_angle=PIEZO0.measure();
                                 ui->PIEZO0_angle_label->setText(QString::number(PIEZO0_angle,'f',2));
-                                diffWindow->setPiezoAngleSample(PIEZO0_angle);
+                                diffWindow->setPiezo0AngleSample(0,PIEZO0_angle);
 
                             }
 
@@ -384,7 +384,7 @@ void MainWindow::Print(QByteArray data)
 
                                 PIEZO1_angle=PIEZO1.measure();
                                 ui->PIEZO1_angle_label->setText(QString::number(PIEZO1_angle,'f',2));
-                                diffWindow->setPiezoAngleSample(PIEZO1_angle);
+                                diffWindow->setPiezoAngleSample(1,PIEZO1_angle);
                                 PIEZO_diff=PIEZO1_angle-PIEZO0_angle;
                                 
 
