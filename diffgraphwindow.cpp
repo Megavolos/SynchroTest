@@ -53,10 +53,10 @@ void diffGraphWindow::setMemsAngleSample(qreal angle)
 {
 
 }
-void diffGraphWindow::setPiezoAngleSample(qreal angle)
+void diffGraphWindow::setPiezoAngleSample(quint8 channel, qreal angle)
 {
     quint16 pixel1,pixel2,pixels,maxPoints;
-
+    qreal angle1,angle2,diff;
     qreal T;
     qreal n;
     qreal maxX = ui->qwtPlot->axisScaleDiv(QwtPlot::xBottom).interval().maxValue();
@@ -70,12 +70,36 @@ void diffGraphWindow::setPiezoAngleSample(qreal angle)
     pixels= pixel2-pixel1;
     callCounter++;
     n=T*maxPoints/pixels;
+    if (channel)
+    {
+        if (qIsNaN(angle))
+        {
+           if (!piezo.isEmpty())
+           {
+               diff=piezo.last();
+           }
+           else
+           {
+               diff=0;
+           }
+        }
+        else
+        {
+            angle1=angle;
+            diff=angle1-angle0;
+        }     
+    }
+    else
+    {
+        angle0=angle;
+    }
+    
     if (pixels < maxPoints) //pixel2-pixel =500;
     {
         if (callCounter%(maxPoints/pixels))
         {
             qreal last=0;
-            piezo.append(angle);
+            piezo.append(diff);
             if (!t.isEmpty()) last = t.last();
             t.append(n + last);
 
@@ -86,7 +110,7 @@ void diffGraphWindow::setPiezoAngleSample(qreal angle)
        qreal last=0;
        if (!t.isEmpty()) last = t.last();
        t.append(T + last);
-       piezo.append(angle);
+       piezo.append(diff);
     }
 
     if (piezo.size()>pixels)
@@ -98,7 +122,6 @@ void diffGraphWindow::setPiezoAngleSample(qreal angle)
 
     curvePiezo->setSamples(t,piezo);
     ui->qwtPlot->replot();
-   // ui->qwtPlot->repaint();
 
 }
 
