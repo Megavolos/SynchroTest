@@ -25,6 +25,7 @@
 #include <qdebug.h>
 #include <qmessagebox.h>
 #include <diagramsettingswindow.h>
+#include <diffgraphwindow.h>
 namespace Ui {
 class MainWindow;
 }
@@ -58,6 +59,7 @@ public:
     writeToFileDialog* writeDialog;
     quint8 resizeCounter;
     DiagramSettingsWindow* diagramSettings;
+    diffGraphWindow*  diffWindow;
 
 
     void setupCOMport(void);

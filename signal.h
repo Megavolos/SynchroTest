@@ -9,6 +9,7 @@
 class Signal : public QObject
 {
     Q_OBJECT
+    static double levelmax,levelmin;
 public:
 
     Signal();
@@ -37,6 +38,8 @@ public:
     void setSignalEnd(bool state);
 public slots:
     void setFSLSlot(int arg1);
+    void setLevelMin(double level);
+    void setLevelMax(double level);
 
 private:
     bool start,signalEnd;
@@ -47,6 +50,7 @@ private:
     QVector<qreal> _data, x;
     qreal LPFcoeff;
     qreal peak, peakPrev,min,max,minPrev,maxPrev;
+
     quint8 falseSignalLevel;
 };
 

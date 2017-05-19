@@ -12,6 +12,8 @@ DiagramSettingsWindow::DiagramSettingsWindow(QWidget *parent) :
     tLimitPiezo=ui->PIEZO_tLimit;
     tStepMems=ui->MEMS_tStep;
     tStepPiezo=ui->PIEZO_tStep;
+    measureMaxP=ui->measureMax;
+    measureMinP=ui->measureMin;
 
 }
 
@@ -41,4 +43,16 @@ void DiagramSettingsWindow::on_piezo1MinSpinBox_valueChanged(int arg1)
     min1=arg1;
 
 
+}
+
+
+
+void DiagramSettingsWindow::on_measureMin_valueChanged(double arg1)
+{
+    levelmin=arg1;
+}
+
+void DiagramSettingsWindow::on_measureMax_valueChanged(double arg1)
+{
+    levelmax=arg1;
 }

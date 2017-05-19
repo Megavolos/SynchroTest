@@ -1,5 +1,7 @@
 #include "signal.h"
 
+double Signal::levelmax=1;
+double Signal::levelmin=0;
 Signal::Signal()
 {
     startLevel=5;
@@ -10,6 +12,7 @@ Signal::Signal()
     peakPrev=0;
     isMems=false;
     signalEnd=false;
+
 
 }
 void Signal::setLPFCoeff (qreal coeff)
@@ -157,7 +160,8 @@ QVector<qreal>* Signal::getTime()
     quint32 numPoints;
     qreal T=1/(qreal)getSamplingFrequencyOneChannel();
     xMax= plot->axisScaleDiv(QwtPlot::xBottom).interval().maxValue();
-    numPoints = xMax/(qreal)T;
+    //нужно меньше точек по Х сделать, а то массив забит лишними данными
+    numPoints = _data.size();
     x.resize(numPoints);
     for (int i=1; i<numPoints;i++)
     {
@@ -199,8 +203,14 @@ bool Signal::isNotFalseSignal()
         return false;
     }
 }
-
-
+void Signal::setLevelMin(qreal level)
+{
+    levelmin=level;
+}
+void Signal::setLevelMax(qreal level)
+{
+    levelmax=level;
+}
 void Signal::setQwtPlotPointer (QwtPlot* _plot)
 {
     plot=_plot;
@@ -217,43 +227,55 @@ void Signal::clearNoSignalData()
 
 qreal Signal::measure()
 {
-
     int skips=0;
     qreal min_x=0,max_x=0,prev_y=0;
     QVector <qreal> result;
     qreal trans=0;
     qreal angle;
-    QPoint point1,point2;
+    QPointF point1,point2;
+    qreal level1=0,level2=0,level3=0;
     QwtInterval interval;
     QwtScaleDiv scalediv;
     qreal T=1/(qreal)getSamplingFrequencyOneChannel();
+    qint16 numPoints;
+    quint8 posMax=0;
 
     interval = plot->axisScaleDiv(QwtPlot::xBottom).interval();
     scalediv = plot->axisScaleDiv(QwtPlot::xBottom);
-    max_x=interval.maxValue();
-    min_x=interval.minValue();
+    max_x=_data.size();
+    min_x=0;
     interval = plot->axisScaleDiv(QwtPlot::yRight).interval();
-    numPoints = max_x/(qreal)T;
-
+    numPoints = max_x;
+    for (int i=0;i<_data.size();i++)
+    {
+        if (_data.at(max_x-i-1)>200)
+        {
+            posMax=max_x-i-1;
+            break;
+        }
+    }
+    level1=_data.at(posMax)*levelmin;
+    level2=_data.at(posMax)*levelmax;
+    level3=_data.at(posMax)*0.5;
     for (int i = 0; i<numPoints;i++)
     {
         if (skips) skips++;
-        if (_data.at(i)>800 && point1.isNull())
+        if (_data.at(i)>level1 && point1.isNull())
         {
             skips++;
-            point1.setX(i);
+            point1.setX(x.at(i));
             point1.setY(_data.at(i));
             trans=plot->canvasMap(QwtPlot::yLeft).transform(point1.y());
             point1.setY(trans);
             trans=plot->canvasMap(QwtPlot::xBottom).transform(point1.x());
             point1.setX(trans);
         }
-        if (_data.at(i)>2800 && point2.isNull())
+        if (_data.at(i)>level2 && point2.isNull())
         {
-            if (skips>40)
+            if (skips)
             {
                 skips=0;
-                point2.setX(i);
+                point2.setX(x.at(i));
                 point2.setY(_data.at(i));
                 trans=plot->canvasMap(QwtPlot::yLeft).transform(point2.y());
                 point2.setY(trans);
@@ -265,9 +287,10 @@ qreal Signal::measure()
             }
             else
             {
-                return -1;
+                skips=0;
+                point1.setX(0);
+                point1.setY(0);
             }
-
         }
         if (prev_y>2000 && _data.at(i) <10)
         {
@@ -275,13 +298,9 @@ qreal Signal::measure()
             point1.setY(0);
             point2.setX(0);
             point2.setY(0);
-            return -2;
         }
         prev_y=_data.at(i);
-
     }
-    return -3;
-
 }
 void Signal::clear()
 {

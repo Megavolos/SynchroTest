@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>465</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,13 @@
    <item row="0" column="0">
     <widget class="QwtPlot" name="qwtPlot"/>
    </item>
+   <item row="1" column="0">
+    <widget class="QwtCounter" name="Counter">
+     <property name="maximum">
+      <double>200.000000000000000</double>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -24,6 +31,11 @@
    <class>QwtPlot</class>
    <extends>QFrame</extends>
    <header>qwt_plot.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtCounter</class>
+   <extends>QWidget</extends>
+   <header>qwt_counter.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
