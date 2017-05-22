@@ -10,6 +10,7 @@ class Sensor : public QObject
 {
     Q_OBJECT
     static double levelmax,levelmin;
+    static int waitPositive, waitEnd;
 public:
 
     Sensor();
@@ -41,6 +42,8 @@ public slots:
     void setLevelMin(double level);
     void setLevelMax(double level);
     void setCalibr(double value);
+    void SetWaitPositive(int value);
+    void SetWaitEnd(int value);
 private:
     bool start,signalEnd;
     quint32 samplingFrequencyAllChannels,wait;
@@ -50,6 +53,7 @@ private:
     QVector<qreal> _data, x;
     qreal LPFcoeff;
     qreal peak, peakPrev,min,max,minPrev,maxPrev,calibr;
+
 
     quint8 falseSignalLevel;
 };

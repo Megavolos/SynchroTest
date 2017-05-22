@@ -17,7 +17,6 @@ SOURCES += main.cpp\
     comportsettingsdialog.cpp \
     writetofiledialog.cpp \
     port.cpp \
-    signal.cpp \
     diffgraphwindow.cpp \
     diagramsettingswindow.cpp \
     sensor.cpp
@@ -26,7 +25,6 @@ HEADERS  += mainwindow.h \
     comportsettingsdialog.h \
     writetofiledialog.h \
     port.h \
-    signal.h \
     diffgraphwindow.h \
     diagramsettingswindow.h \
     sensor.h

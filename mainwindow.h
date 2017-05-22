@@ -26,6 +26,7 @@
 #include <qmessagebox.h>
 #include <diagramsettingswindow.h>
 #include <diffgraphwindow.h>
+#include <QSettings>
 namespace Ui {
 class MainWindow;
 }
@@ -60,6 +61,7 @@ public:
     quint8 resizeCounter;
     DiagramSettingsWindow* diagramSettings;
     diffGraphWindow*  diffWindow;
+    QSettings *settings;
 
 
     void setupCOMport(void);

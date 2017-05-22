@@ -20,6 +20,10 @@ MainWindow::MainWindow(QWidget *parent) :
     diagramSettings->show();
     diffWindow->setModal(false);
     diffWindow->show();
+    settings = new QSettings ("settings.conf",QSettings::IniFormat	);
+    currentComPortName=settings->value("ComPort/Name").toString();
+    savesettings(currentComPortName,115200,8,0,0,0);
+
 
 }
 
@@ -35,6 +39,7 @@ void MainWindow::on_openComPortSettingsDialog_triggered()
     ComPortSettingsDialog comPortSettingsDialog(this);
     comPortSettingsDialog.exec();
     currentComPortName=comPortSettingsDialog.getSelectedPortName();
+    settings->setValue("ComPort/Name",currentComPortName);
     savesettings(currentComPortName,115200,8,0,0,0);
 
 }
@@ -84,6 +89,10 @@ void MainWindow::setupCOMport()
     connect(diagramSettings->calMems1, SIGNAL(valueChanged(double)), &MEMS1, SLOT(setCalibr(double)) );
     connect(diagramSettings->calPiezo0, SIGNAL(valueChanged(double)), &PIEZO0, SLOT(setCalibr(double)) );
     connect(diagramSettings->calPiezo1, SIGNAL(valueChanged(double)), &PIEZO1, SLOT(setCalibr(double)) );
+
+    connect(diagramSettings->waitEndP,SIGNAL(valueChanged(int)),&PIEZO0,SLOT(SetWaitEnd(int)));
+    connect(diagramSettings->waitPositiveP,SIGNAL(valueChanged(int)),&PIEZO0,SLOT(SetWaitPositive(int)));
+
 
 
 }
@@ -285,6 +294,7 @@ void MainWindow::Print(QByteArray data)
         }
 
     }
+
     if (startRecieved==4)
     {
         for (int i=0; i<data.size();i++)

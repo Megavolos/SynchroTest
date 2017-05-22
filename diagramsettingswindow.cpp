@@ -18,6 +18,8 @@ DiagramSettingsWindow::DiagramSettingsWindow(QWidget *parent) :
     calMems1=ui->calibrMems1;
     calPiezo0=ui->calibrPiezo0;
     calPiezo1=ui->calibrPiezo1;
+    waitEndP=ui->waitEndSpin;
+    waitPositiveP=ui->waitPositiveSpin;
 
 }
 

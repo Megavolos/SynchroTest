@@ -2,6 +2,8 @@
 
 double Sensor::levelmax=1;
 double Sensor::levelmin=0;
+int Sensor::waitPositive=25;
+int Sensor::waitEnd=25;
 Sensor::Sensor()
 {
     startLevel=5;
@@ -14,8 +16,20 @@ Sensor::Sensor()
     signalEnd=false;
     wait=0;
     calibr=1;
+    levelmax=0.9;
+    levelmin=0;
 
 }
+void Sensor::SetWaitPositive(int value)
+{
+    waitPositive=value;
+}
+
+void Sensor::SetWaitEnd(int value)
+{
+    waitEnd=value;
+}
+
 void Sensor::setLPFCoeff (qreal coeff)
 {
     LPFcoeff=coeff;
@@ -56,7 +70,7 @@ bool Sensor::isSignalPresent()
             if (_data.last() > 0)
             {
                 wait++;
-                if (wait>25)
+                if (wait>waitPositive)
                 {
                     setStart(true);
                     setSignalEnd(false);
@@ -130,7 +144,7 @@ void Sensor::integrate()
 
 bool Sensor::isSignalEnd()
 {
-   if (_data.size()>40)
+   if (_data.size()>waitEnd)
    {
        if (!isMems)
        {
@@ -230,7 +244,7 @@ void Sensor::clearNoSignalData()
 {
     qreal time;
     time=_data.size()*1/(qreal)getSamplingFrequencyOneChannel();
-    if (time>2)
+    if (time>1)
     {
         clear();
     }

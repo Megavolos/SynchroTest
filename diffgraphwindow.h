@@ -31,6 +31,7 @@ private:
     QVector<qreal> mems,piezo,diff,t;
     quint16 samplingFreq;
     quint8 callCounter;
+    qreal angle1,angle0;
 
 };
 
