@@ -14,6 +14,10 @@ DiagramSettingsWindow::DiagramSettingsWindow(QWidget *parent) :
     tStepPiezo=ui->PIEZO_tStep;
     measureMaxP=ui->measureMax;
     measureMinP=ui->measureMin;
+    calMems0=ui->calibrMems0;
+    calMems1=ui->calibrMems1;
+    calPiezo0=ui->calibrPiezo0;
+    calPiezo1=ui->calibrPiezo1;
 
 }
 

@@ -1,18 +1,18 @@
-#ifndef SIGNAL_H
-#define SIGNAL_H
+#ifndef SENSOR_H
+#define SENSOR_H
 #include <QObject>
 #include <QVector>
 #include <QPoint>
 #include <qwt_plot.h>
 #include <qmath.h>
 #include <qwt_scale_div.h>
-class Signal : public QObject
+class Sensor : public QObject
 {
     Q_OBJECT
     static double levelmax,levelmin;
 public:
 
-    Signal();
+    Sensor();
     bool isMems;
     void setStart (bool state);
     void setSamplingFrequencyAllChannels(quint32 freq);
@@ -40,18 +40,18 @@ public slots:
     void setFSLSlot(int arg1);
     void setLevelMin(double level);
     void setLevelMax(double level);
-
+    void setCalibr(double value);
 private:
     bool start,signalEnd;
-    quint32 samplingFrequencyAllChannels;
+    quint32 samplingFrequencyAllChannels,wait;
     quint16 samplingFrequencyOneChannel;
     QwtPlot* plot;
     qint16 startLevel;
     QVector<qreal> _data, x;
     qreal LPFcoeff;
-    qreal peak, peakPrev,min,max,minPrev,maxPrev;
+    qreal peak, peakPrev,min,max,minPrev,maxPrev,calibr;
 
     quint8 falseSignalLevel;
 };
 
-#endif // SIGNAL_H
+#endif // SENSOR_H

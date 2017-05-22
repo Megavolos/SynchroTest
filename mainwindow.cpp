@@ -80,6 +80,10 @@ void MainWindow::setupCOMport()
     connect(diagramSettings->tStepMems, SIGNAL(valueChanged(double)), this, SLOT(on_MemsStepChagned(double)));
     connect(diagramSettings->tStepPiezo, SIGNAL(valueChanged(double)), this, SLOT(on_PiezoStepChagned(double)));
 
+    connect(diagramSettings->calMems0, SIGNAL(valueChanged(double)), &MEMS0, SLOT(setCalibr(double)) );
+    connect(diagramSettings->calMems1, SIGNAL(valueChanged(double)), &MEMS1, SLOT(setCalibr(double)) );
+    connect(diagramSettings->calPiezo0, SIGNAL(valueChanged(double)), &PIEZO0, SLOT(setCalibr(double)) );
+    connect(diagramSettings->calPiezo1, SIGNAL(valueChanged(double)), &PIEZO1, SLOT(setCalibr(double)) );
 
 
 }
@@ -87,6 +91,7 @@ void MainWindow::error (QString err)
 {
     QMessageBox message(this);
     message.setText(err);
+
 
     if (!err.contains("Открыт", Qt::CaseInsensitive))
     {
@@ -114,7 +119,7 @@ void MainWindow::startWriteToFile()
         if ( writeDialog->getFileDevice()->open(QIODevice::ReadWrite) )
         {
             writeDialog->setWriteEnabledState(true);
-            datastream.setDevice(writeDialog->getFileDevice());
+            //datastream.setDevice(writeDialog->getFileDevice());
         }
         else
         {
@@ -204,8 +209,8 @@ void MainWindow::setupQwt()
   //  MEMS1.setFalseSignalLevel(30);
    // PIEZO1.setFalseSignalLevel(30);
 
-    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,1,0.1 );
-    ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,1,0.1 );
+    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,2,0.1 );
+    ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,2,0.1 );
 
     MEMS0.setIsMems(true);
     MEMS1.setIsMems(true);
@@ -284,7 +289,7 @@ void MainWindow::Print(QByteArray data)
     {
         for (int i=0; i<data.size();i++)
         {
-            if (writeDialog->getWriteEnabledState()) datastream<<data.at(i);
+           // if (writeDialog->getWriteEnabledState()) datastream<<data.at(i);
             switch (channelSwitch)  {
             case 0:
                 if (PIEZO0.getStart()) MEMS0.addSample((quint8)data.at(i));
@@ -304,6 +309,7 @@ void MainWindow::Print(QByteArray data)
             case 1:
                 PIEZO0.addSample((quint8)data.at(i));
                 PIEZO0.clearNoSignalData();
+
                 PIEZO0.filter();
                 if (PIEZO0.isSignalPresent())
                 {
@@ -325,7 +331,7 @@ void MainWindow::Print(QByteArray data)
 
                                 PIEZO0_angle=PIEZO0.measure();
                                 ui->PIEZO0_angle_label->setText(QString::number(PIEZO0_angle,'f',2));
-                                diffWindow->setPiezoAngleSample(PIEZO0_angle);
+                                diffWindow->setPiezoAngleSample(0,PIEZO0_angle);
 
                             }
 
@@ -378,6 +384,17 @@ void MainWindow::Print(QByteArray data)
                         {
                             curvesPiezo.at(1)->setSamples(*PIEZO1.getTime(),*PIEZO1.data());
                             ui->qwtPlot_2->replot();
+                            if(ui->IntegratePiezo->isChecked())
+                            {
+                                ui->qwtPlot_2->repaint();
+
+                                PIEZO1_angle=PIEZO1.measure();
+                                ui->PIEZO1_angle_label->setText(QString::number(PIEZO1_angle,'f',2));
+                                diffWindow->setPiezoAngleSample(1,PIEZO1_angle);
+                                PIEZO_diff=PIEZO1_angle-PIEZO0_angle;
+                                
+
+                            }
                         }
                         else
                         {
@@ -386,11 +403,6 @@ void MainWindow::Print(QByteArray data)
 
                         }
                         PIEZO1.clear();
-                       // PIEZO1_angle=PIEZO1.measure();
-                       // ui->PIEZO1_angle_label->setText(QString::number(PIEZO1_angle,'f',2));
-                       // PIEZO_diff=PIEZO0_angle-PIEZO1_angle;
-                       //ui->PIEZO_diff_label->setText((QString::number(PIEZO_diff,'f',2)));
-
 
                     }
                 }

@@ -23,7 +23,7 @@ public:
 
     QSpinBox *spin0, *spin1;
     qreal levelmin,levelmax;
-    QDoubleSpinBox *tLimitMems, *tLimitPiezo, *tStepMems, *tStepPiezo,*measureMinP,*measureMaxP;
+    QDoubleSpinBox *tLimitMems, *tLimitPiezo, *tStepMems, *tStepPiezo,*measureMinP,*measureMaxP,*calPiezo0,*calPiezo1,*calMems0,*calMems1;
 
 private slots:
     void on_piezo0MinSpinBox_valueChanged(int arg1);

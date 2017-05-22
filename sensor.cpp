@@ -1,8 +1,8 @@
-#include "signal.h"
+#include "sensor.h"
 
-double Signal::levelmax=1;
-double Signal::levelmin=0;
-Signal::Signal()
+double Sensor::levelmax=1;
+double Sensor::levelmin=0;
+Sensor::Sensor()
 {
     startLevel=5;
     start=false;
@@ -12,58 +12,63 @@ Signal::Signal()
     peakPrev=0;
     isMems=false;
     signalEnd=false;
-
+    wait=0;
+    calibr=1;
 
 }
-void Signal::setLPFCoeff (qreal coeff)
+void Sensor::setLPFCoeff (qreal coeff)
 {
     LPFcoeff=coeff;
 }
 
-void Signal::setStart(bool state)
+void Sensor::setStart(bool state)
 {
     start=state;
 }
-bool Signal::getStart()
+bool Sensor::getStart()
 {
     return start;
 }
-bool Signal::getSignalEnd()
+bool Sensor::getSignalEnd()
 {
     return signalEnd;
 }
-void Signal::setSignalEnd(bool state)
+void Sensor::setSignalEnd(bool state)
 {
     signalEnd=state;
 }
-void Signal::setStartLevel(qint16 level)
+void Sensor::setStartLevel(qint16 level)
 {
     startLevel=level;
 }
-void Signal::setIsMems(bool state)
+void Sensor::setIsMems(bool state)
 {
     isMems=state;
     peak=255;
 }
 
-bool Signal::isSignalPresent()
+bool Sensor::isSignalPresent()
 {
     if (!isMems)
     {
         if (!getStart() && !_data.isEmpty())
         {
-            if (_data.last() > startLevel)
+            if (_data.last() > 0)
             {
-                setStart(true);
-                setSignalEnd(false);
-                if(_data.size()>1)
+                wait++;
+                if (wait>25)
                 {
-                    _data.remove(0,_data.size()-2);
+                    setStart(true);
+                    setSignalEnd(false);
+
+                    return true;
                 }
-                return true;
+
             }
             else
             {
+                wait=0;
+                clear();
                 return false;
             }
         }
@@ -75,21 +80,26 @@ bool Signal::isSignalPresent()
 
 }
 
-QVector<qreal>* Signal::data()
+QVector<qreal>* Sensor::data()
 {
     return &_data;
 }
 
-void Signal::addSample(quint8 sample)
+void Sensor::setCalibr(double value)
 {
-    _data.append(sample);
+    calibr=value;
 }
-void Signal::setFSLSlot(int arg1)
+
+void Sensor::addSample(quint8 sample)
+{
+    _data.append((qreal)sample*calibr);
+}
+void Sensor::setFSLSlot(int arg1)
 {
     falseSignalLevel=arg1;
 }
 
-void Signal::integrate()
+void Sensor::integrate()
 {
     QVector<qreal> out(_data.size());
     for (int i=1; i<_data.size(); i++)
@@ -118,7 +128,7 @@ void Signal::integrate()
  */
 
 
-bool Signal::isSignalEnd()
+bool Sensor::isSignalEnd()
 {
    if (_data.size()>40)
    {
@@ -128,6 +138,7 @@ bool Signal::isSignalEnd()
            {
                setStart(false); //сбрасываем флаг старта для ожидания последующего старта
                setSignalEnd(true);
+               wait=0;
                return true;
            }
            else
@@ -141,17 +152,17 @@ bool Signal::isSignalEnd()
        return false;
    }
 }
-void Signal::setSamplingFrequencyAllChannels(quint32 freq)
+void Sensor::setSamplingFrequencyAllChannels(quint32 freq)
 {
     samplingFrequencyAllChannels=freq;
 }
-quint32 Signal::getSamplingFrequencyOneChannel()
+quint32 Sensor::getSamplingFrequencyOneChannel()
 {
     quint32 freq=samplingFrequencyAllChannels/4;
     return freq;
 }
 
-QVector<qreal>* Signal::getTime()
+QVector<qreal>* Sensor::getTime()
 {
     //максимальное значение по x = xMax
     //период дескритизации = T
@@ -169,7 +180,7 @@ QVector<qreal>* Signal::getTime()
     }
     return &x;
 }
-void Signal::filter()              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
+void Sensor::filter()              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
 {
 
 
@@ -184,15 +195,15 @@ void Signal::filter()              //in - вход фильтра, coeff - ко�
         }
 
     }
-    _data=out;
+    if (_data.size()>1) _data=out;
 
 }
-void Signal::setFalseSignalLevel(quint8 level)
+void Sensor::setFalseSignalLevel(quint8 level)
 {
     falseSignalLevel=level;
 }
 
-bool Signal::isNotFalseSignal()
+bool Sensor::isNotFalseSignal()
 {
     if (peak>falseSignalLevel)
     {
@@ -203,29 +214,29 @@ bool Signal::isNotFalseSignal()
         return false;
     }
 }
-void Signal::setLevelMin(qreal level)
+void Sensor::setLevelMin(qreal level)
 {
     levelmin=level;
 }
-void Signal::setLevelMax(qreal level)
+void Sensor::setLevelMax(qreal level)
 {
     levelmax=level;
 }
-void Signal::setQwtPlotPointer (QwtPlot* _plot)
+void Sensor::setQwtPlotPointer (QwtPlot* _plot)
 {
     plot=_plot;
 }
-void Signal::clearNoSignalData()
+void Sensor::clearNoSignalData()
 {
     qreal time;
     time=_data.size()*1/(qreal)getSamplingFrequencyOneChannel();
-    if (time>1)
+    if (time>2)
     {
         clear();
     }
 }
 
-qreal Signal::measure()
+qreal Sensor::measure()
 {
     int skips=0;
     qreal min_x=0,max_x=0,prev_y=0;
@@ -302,7 +313,7 @@ qreal Signal::measure()
         prev_y=_data.at(i);
     }
 }
-void Signal::clear()
+void Sensor::clear()
 {
     _data.clear();
     start=false;

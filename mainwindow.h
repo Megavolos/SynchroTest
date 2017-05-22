@@ -21,7 +21,7 @@
 #include <writetofiledialog.h>
 #include <port.h>
 #include <qthread.h>
-#include <signal.h>
+#include <sensor.h>
 #include <qdebug.h>
 #include <qmessagebox.h>
 #include <diagramsettingswindow.h>
@@ -47,7 +47,7 @@ public:
     QwtPlotPanner *d_panner,*d_panner1,*d_panner2;            //перемещатель
     QwtPlotGrid *grid,*grid1,*grid2;
     QVector<double> x;
-    Signal MEMS0,MEMS1,PIEZO0,PIEZO1;
+    Sensor MEMS0,MEMS1,PIEZO0,PIEZO1;
     QFile file;
     QDataStream datastream;
     QVector<qreal> filter(QVector<qreal> *in, qreal coeff );

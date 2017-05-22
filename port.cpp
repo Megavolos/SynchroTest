@@ -34,22 +34,22 @@ void Port :: open()
                 && thisPort.setFlowControl(SettingsPort.flowControl))
         {
             if (thisPort.isOpen()){
-                error_((SettingsPort.name+ " >> Открыт!\r").toLocal8Bit());
+                error_((SettingsPort.name+ " >> Открыт!\r"));
             }
         } else {
             thisPort.close();
-            error_(thisPort.errorString().toLocal8Bit());
+            error_(thisPort.errorString());
           }
     } else {
         thisPort.close();
-        error_(thisPort.errorString().toLocal8Bit());
+        error_(thisPort.errorString());
     }
 }
 void Port:: close()
 {
     if(thisPort.isOpen()){
         thisPort.close();
-        error_(SettingsPort.name.toLocal8Bit() + " >> Закрыт!\r");
+        error_(SettingsPort.name + " >> Закрыт!\r");
     }
 }
 
@@ -63,7 +63,7 @@ void Port :: ConnectPort(void){//процедура подключения
                 && thisPort.setFlowControl(SettingsPort.flowControl))
         {
             if (thisPort.isOpen()){
-                error_((SettingsPort.name+ " >> Открыт!\r").toLocal8Bit());
+                error_((SettingsPort.name+ " >> Открыт!\r"));
                 qDebug("Открыт");
                 QByteArray d;
                 d.append('2');
@@ -71,17 +71,17 @@ void Port :: ConnectPort(void){//процедура подключения
             }
         } else {
             thisPort.close();
-            error_(thisPort.errorString().toLocal8Bit());
+            error_(thisPort.errorString());
           }
     } else {
         thisPort.close();
-        error_(thisPort.errorString().toLocal8Bit());
+        error_(thisPort.errorString());
     }
 }
 void Port::handleError(QSerialPort::SerialPortError error)//проверка ошибок при работе
 {
     if ( (thisPort.isOpen()) && (error == QSerialPort::ResourceError)) {
-        error_(thisPort.errorString().toLocal8Bit());
+        error_(thisPort.errorString());
         DisconnectPort();
         qDebug(thisPort.errorString().toLocal8Bit());
     }
@@ -92,7 +92,7 @@ void  Port::DisconnectPort(){//Отключаем порт
         d.append('0');
         WriteToPort(d);
         thisPort.close();
-        error_(SettingsPort.name.toLocal8Bit() + " >> Закрыт!\r");
+        error_(SettingsPort.name + " >> Закрыт!\r");
     }
 }
 void Port :: WriteToPort(QByteArray data){//Запись данных в порт
