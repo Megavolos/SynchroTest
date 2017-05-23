@@ -218,9 +218,10 @@ void MainWindow::setupQwt()
   //  MEMS1.setFalseSignalLevel(30);
    // PIEZO1.setFalseSignalLevel(30);
 
-    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,2,0.1 );
-    ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,2,0.1 );
-
+    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,0.04,0.01 );
+    ui->qwtPlot->setAxisScale(QwtPlot::yLeft,40,150,10 );
+    ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,0.04,0.01 );
+    ui->qwtPlot_2->setAxisScale(QwtPlot::yLeft,0,120,10 );
     MEMS0.setIsMems(true);
     MEMS1.setIsMems(true);
 

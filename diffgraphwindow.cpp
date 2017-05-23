@@ -10,7 +10,8 @@ diffGraphWindow::diffGraphWindow(QWidget *parent) :
     zoom_x = new QwtPlotMagnifier( ui->qwtPlot->canvas());
     zoom_y = new QwtPlotMagnifier( ui->qwtPlot->canvas() );
     grid = new QwtPlotGrid;
-    grid->enableXMin(true);
+    grid->enableXMin(false);
+    grid->enableX(true);
     grid->setMajorPen(QPen(Qt::white,1,Qt::DotLine));
     grid->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
     grid->attach(ui->qwtPlot);
@@ -37,13 +38,15 @@ diffGraphWindow::diffGraphWindow(QWidget *parent) :
     curveDiff->attach(ui->qwtPlot);
     curveMems->attach(ui->qwtPlot);
     curvePiezo->attach(ui->qwtPlot);
-    ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom,false);
+    ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom,true);
     ui->qwtPlot->setAxisAutoScale(QwtPlot::yLeft,true);
     ui->qwtPlot->setAxisScale(QwtPlot::yLeft,-10,10,1 );
     ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,30,5 );
 
-    samplingFreq=250;
+    samplingFreq=500;
     callCounter=0;
+    endXreached=false;
+    prevMaxX=0;
     angle1=0,angle0=0;
 
 
@@ -61,16 +64,21 @@ void diffGraphWindow::setPiezoAngleSample(quint8 channel, qreal angle)
     qreal T;
     qreal n;
     qreal maxX = ui->qwtPlot->axisScaleDiv(QwtPlot::xBottom).interval().maxValue();
-    pixel1=ui->qwtPlot->canvasMap(QwtPlot::xBottom).transform(0);
-    pixel2=ui->qwtPlot->canvasMap(QwtPlot::xBottom).transform(maxX);
+    maxX=quint16(maxX);
     //общее кол-во пикселей = poin2-point1
     //период дескритизации = T, значит , допустим для 30 сек = 10/T семплов, допустим 7500 семплов
     //
-    T=1/(qreal)samplingFreq;
-    maxPoints = maxX/T; //7500
-    pixels= pixel2-pixel1;
-    callCounter++;
-    n=T*maxPoints/pixels;
+
+    if (maxX!=prevMaxX )
+    {
+        endXreached=false;
+        callCounter=0;
+       // ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,maxX,2 );
+        t.clear();
+        piezo.clear();
+    }
+
+    prevMaxX=maxX;
     if (qIsNaN(angle))
     {
         if (piezo.isEmpty())
@@ -91,6 +99,11 @@ void diffGraphWindow::setPiezoAngleSample(quint8 channel, qreal angle)
        }
        diff=angle1-angle0;
        angle0=0;
+       if (!endXreached)
+       {
+           callCounter++;
+           t.append(callCounter);
+       }
     }
 
     if (channel==1)
@@ -103,35 +116,17 @@ void diffGraphWindow::setPiezoAngleSample(quint8 channel, qreal angle)
        }
        diff=angle1-angle0;
        angle1=0;
+       if (!endXreached)
+       {
+           callCounter++;
+           t.append(callCounter);
+       }
     }
 
 
-
-    if (pixels < maxPoints) //pixel2-pixel =500;
-    {
-        if (callCounter%(maxPoints/pixels))
-        {
-            qreal last=0;
-            piezo.append(diff);
-            if (!t.isEmpty()) last = t.last();
-            t.append(n + last);
-
-        }
-    }
-    else
-    {
-       qreal last=0;
-       if (!t.isEmpty()) last = t.last();
-       t.append(T + last);
-       piezo.append(diff);
-    }
-
-    if (piezo.size()>pixels)
-    {
-        piezo.pop_front();
-        t.pop_front();
-        ui->qwtPlot->setAxisScale(QwtPlot::xBottom,t.at(0),t.last(),2 );
-    }
+    piezo.append(diff);
+    if (callCounter==maxX) endXreached=true;
+    if (endXreached) piezo.pop_front();
 
     curvePiezo->setSamples(t,piezo);
     ui->qwtPlot->replot();
