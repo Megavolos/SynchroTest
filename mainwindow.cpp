@@ -343,6 +343,8 @@ void MainWindow::Print(QByteArray data)
                                 ui->PIEZO0_angle_label->setText(QString::number(PIEZO0_angle,'f',2));
                                 diffWindow->setPiezoAngleSample(0,PIEZO0_angle);
 
+
+
                             }
 
                         }
