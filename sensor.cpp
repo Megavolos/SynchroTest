@@ -8,7 +8,7 @@ Sensor::Sensor()
 {
     startLevel=5;
     start=false;
-    setSamplingFrequencyAllChannels(14000);
+    setSamplingFrequencyAllChannels(1000);
     LPFcoeff=1;
     peak=0;
     peakPrev=0;
@@ -183,7 +183,7 @@ QVector<qreal>* Sensor::getTime()
     //количество семплов на экране = xMax/T
     qreal xMax;
     quint32 numPoints;
-    qreal T=1/(qreal)2890;
+    qreal T=1/(qreal)getSamplingFrequencyOneChannel();
     xMax= plot->axisScaleDiv(QwtPlot::xBottom).interval().maxValue();
     //нужно меньше точек по Х сделать, а то массив забит лишними данными
     numPoints = _data.size();
@@ -244,7 +244,7 @@ void Sensor::clearNoSignalData()
 {
     qreal time;
     time=_data.size()*1/(qreal)getSamplingFrequencyOneChannel();
-    if (time>1)
+    if (time>2)
     {
         clear();
     }

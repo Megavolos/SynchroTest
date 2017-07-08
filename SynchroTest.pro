@@ -34,7 +34,7 @@ FORMS    += mainwindow.ui \
     writetofiledialog.ui \
     diffgraphwindow.ui \
     diagramsettingswindow.ui
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/local/qwt-6.1.3/lib/release/ -lqwt
+win32:CONFIG += qwt
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/local/qwt-6.1.3/lib/debug/ -lqwt
 else:unix:!macx: LIBS += -L$$PWD/../../../usr/local/qwt-6.1.3/lib/ -lqwt
 

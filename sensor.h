@@ -36,6 +36,11 @@ public:
     void setFalseSignalLevel(quint8 level);
     void setIsMems(bool state);
     bool getSignalEnd();
+    bool memsStart;
+    bool memsEnd;
+    bool searchMin();
+    bool searchMax();
+    bool clearMems(void);
     void setSignalEnd(bool state);
 public slots:
     void setFSLSlot(int arg1);
@@ -47,7 +52,7 @@ public slots:
 private:
     bool start,signalEnd;
     quint32 samplingFrequencyAllChannels,wait;
-    quint16 samplingFrequencyOneChannel;
+    quint16 samplingFrequencyOneChannel,mincount,maxcount;
     QwtPlot* plot;
     qint16 startLevel;
     QVector<qreal> _data, x;

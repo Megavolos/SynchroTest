@@ -20,7 +20,7 @@ public:
     void setMemsAngleSample (qreal angle);
     void setPiezoAngleSample (quint8 channel, qreal angle);
     void setDiffSample(qreal diff);
-
+    void filter();
 
 private:
     Ui::diffGraphWindow *ui;
@@ -33,6 +33,7 @@ private:
     quint16 callCounter;
     qreal angle1,angle0,prevMaxX;
     bool endXreached;
+    qreal out;
 
 };
 

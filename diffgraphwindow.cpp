@@ -48,7 +48,7 @@ diffGraphWindow::diffGraphWindow(QWidget *parent) :
     endXreached=false;
     prevMaxX=0;
     angle1=0,angle0=0;
-
+    out=0;
 
 }
 
@@ -127,12 +127,21 @@ void diffGraphWindow::setPiezoAngleSample(quint8 channel, qreal angle)
     piezo.append(diff);
     if (callCounter==maxX) endXreached=true;
     if (endXreached) piezo.pop_front();
-
+    filter();
     curvePiezo->setSamples(t,piezo);
     ui->qwtPlot->replot();
 
 }
+void diffGraphWindow::filter()              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
+{
 
+    if (piezo.size()>1)
+    {
+        out=ui->LPFcoeff->value()*piezo.last() + (1.0-ui->LPFcoeff->value())*out;                   //сам фильтр
+        piezo[(piezo.size()-1)]=out;
+    }
+
+}
 diffGraphWindow::~diffGraphWindow()
 {
     delete ui;

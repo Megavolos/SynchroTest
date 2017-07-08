@@ -14,13 +14,29 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QwtCounter" name="Counter" native="true">
+     <property name="maximum" stdset="0">
+      <double>200.000000000000000</double>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QwtPlot" name="qwtPlot"/>
    </item>
-   <item row="1" column="0">
-    <widget class="QwtCounter" name="Counter">
+   <item row="2" column="0">
+    <widget class="QDoubleSpinBox" name="LPFcoeff">
+     <property name="accelerated">
+      <bool>true</bool>
+     </property>
      <property name="maximum">
-      <double>200.000000000000000</double>
+      <double>1.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.010000000000000</double>
+     </property>
+     <property name="value">
+      <double>1.000000000000000</double>
      </property>
     </widget>
    </item>
@@ -31,6 +47,7 @@
    <class>QwtPlot</class>
    <extends>QFrame</extends>
    <header>qwt_plot.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>QwtCounter</class>

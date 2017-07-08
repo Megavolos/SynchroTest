@@ -62,10 +62,11 @@ public:
     DiagramSettingsWindow* diagramSettings;
     diffGraphWindow*  diffWindow;
     QSettings *settings;
-
+    bool syncronized;
 
     void setupCOMport(void);
     void setupQwt(void);
+    void sync(QByteArray *data);
 private slots:
     void on_openComPortSettingsDialog_triggered();
 

@@ -218,9 +218,9 @@ void MainWindow::setupQwt()
   //  MEMS1.setFalseSignalLevel(30);
    // PIEZO1.setFalseSignalLevel(30);
 
-    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,0.04,0.01 );
+    ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,2,1 );
     ui->qwtPlot->setAxisScale(QwtPlot::yLeft,40,150,10 );
-    ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,0.04,0.01 );
+    ui->qwtPlot_2->setAxisScale(QwtPlot::xBottom,0,2,1 );
     ui->qwtPlot_2->setAxisScale(QwtPlot::yLeft,0,120,10 );
     MEMS0.setIsMems(true);
     MEMS1.setIsMems(true);
@@ -303,8 +303,8 @@ void MainWindow::Print(QByteArray data)
            // if (writeDialog->getWriteEnabledState()) datastream<<data.at(i);
             switch (channelSwitch)  {
             case 0:
-                if (PIEZO0.getStart()) MEMS0.addSample((quint8)data.at(i));
-                if (PIEZO0.getSignalEnd())
+                if (PIEZO1.getStart()) MEMS0.addSample((quint8)data.at(i));
+                if (PIEZO1.getSignalEnd())
                     {
                        //
                         MEMS0.filter();
@@ -371,7 +371,7 @@ void MainWindow::Print(QByteArray data)
                     ui->qwtPlot->replot();
                     PIEZO1.setSignalEnd(false);
 
-                }        
+                }
 
                        // MEMS1_angle=MEMS1.measure();
                        // ui->MEMS1_angle_label->setText(QString::number(MEMS1_angle,'f',2));
