@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     port.cpp \
     diffgraphwindow.cpp \
     diagramsettingswindow.cpp \
-    sensor.cpp
+    sensor.cpp \
+    zeroleveldialog.cpp
 
 HEADERS  += mainwindow.h \
     comportsettingsdialog.h \
@@ -27,13 +28,15 @@ HEADERS  += mainwindow.h \
     port.h \
     diffgraphwindow.h \
     diagramsettingswindow.h \
-    sensor.h
+    sensor.h \
+    zeroleveldialog.h
 
 FORMS    += mainwindow.ui \
     comportsettingsdialog.ui \
     writetofiledialog.ui \
     diffgraphwindow.ui \
-    diagramsettingswindow.ui
+    diagramsettingswindow.ui \
+    zeroleveldialog.ui
 win32:CONFIG += qwt
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/local/qwt-6.1.3/lib/debug/ -lqwt
 else:unix:!macx: LIBS += -L$$PWD/../../../usr/local/qwt-6.1.3/lib/ -lqwt

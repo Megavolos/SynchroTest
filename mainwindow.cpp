@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
     writeDialog = new writeToFileDialog(this);
     diagramSettings = new DiagramSettingsWindow(this);
     diffWindow = new diffGraphWindow(this);
+    zeroLevelWindow = new zeroLevelDialog(this);
+
 
     setupCOMport();
     setupQwt();
@@ -20,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     diagramSettings->show();
     diffWindow->setModal(false);
     diffWindow->show();
+    zeroLevelWindow->setModal(false);
     settings = new QSettings ("settings.conf",QSettings::IniFormat	);
     currentComPortName=settings->value("ComPort/Name").toString();
     savesettings(currentComPortName,115200,8,0,0,0);
@@ -494,4 +497,11 @@ void MainWindow::on_lpfMemsEdit_returnPressed()
     bool ok;
     MEMS0.setLPFCoeff(ui->lpfMemsEdit->text().toDouble(&ok));
     MEMS1.setLPFCoeff(ui->lpfMemsEdit->text().toDouble(&ok));
+}
+
+
+
+void MainWindow::on_openZeroLevelDialog_triggered()
+{
+    zeroLevelWindow->show();
 }

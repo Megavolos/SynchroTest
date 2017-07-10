@@ -314,6 +314,7 @@
     <addaction name="openComPortSettingsDialog"/>
     <addaction name="openWriteToFileDialog"/>
     <addaction name="openPlotSettingsDialog"/>
+    <addaction name="openZeroLevelDialog"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -360,6 +361,11 @@
    </property>
    <property name="text">
     <string>Stop</string>
+   </property>
+  </action>
+  <action name="openZeroLevelDialog">
+   <property name="text">
+    <string>Уровень нуля</string>
    </property>
   </action>
  </widget>

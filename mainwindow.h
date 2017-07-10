@@ -27,6 +27,8 @@
 #include <diagramsettingswindow.h>
 #include <diffgraphwindow.h>
 #include <QSettings>
+#include <zeroleveldialog.h>
+
 namespace Ui {
 class MainWindow;
 }
@@ -61,6 +63,7 @@ public:
     quint8 resizeCounter;
     DiagramSettingsWindow* diagramSettings;
     diffGraphWindow*  diffWindow;
+    zeroLevelDialog* zeroLevelWindow;
     QSettings *settings;
     bool syncronized;
 
@@ -96,6 +99,8 @@ private slots:
     void on_PiezoStepChagned(double step);
     void on_MemsStepChagned(double step);
 
+
+    void on_openZeroLevelDialog_triggered();
 
 signals:
 
