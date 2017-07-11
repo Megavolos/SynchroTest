@@ -40,6 +40,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    qreal MEMS0_angle,MEMS1_angle,PIEZO0_angle,PIEZO1_angle,MEMS_diff,PIEZO_diff;
     QString currentComPortName;
     QString pathToWriteFiles;
     QVector<QwtPlotCurve*> curvesPiezo;

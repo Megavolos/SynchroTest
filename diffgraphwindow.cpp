@@ -69,8 +69,10 @@ void diffGraphWindow::setAngleSample(quint8 channel, qreal angle)
     {
         endXreached=false;
         callCounter=0;
+        callCounterMems=0;
        // ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,maxX,2 );
         t.clear();
+        tMems.clear();
         diffs[0].clear();
         diffs[1].clear();
     }
@@ -97,7 +99,7 @@ void diffGraphWindow::setAngleSample(quint8 channel, qreal angle)
             }
             else
             {
-                angle=diffs[0].last();
+                return;
             }
         }
 
@@ -145,6 +147,11 @@ void diffGraphWindow::setAngleSample(quint8 channel, qreal angle)
        }
        diffs[0].append(angle2-angle0);
        angle0=0;
+       if (!endXreached)
+       {
+           callCounterMems++;
+           tMems.append(callCounterMems);
+       }
     }
 
     if (channel==2)
@@ -163,7 +170,7 @@ void diffGraphWindow::setAngleSample(quint8 channel, qreal angle)
     {
 
         if (callCounter==maxX) endXreached=true;
-        if (endXreached) piezo.pop_front();
+        if (endXreached) diffs[1].pop_front();
         filter(&diffs[1]);
         curvePiezo->setSamples(t,diffs.at(1));
 
@@ -172,7 +179,7 @@ void diffGraphWindow::setAngleSample(quint8 channel, qreal angle)
     {
 
         if (callCounter==maxX) endXreached=true;
-        if (endXreached) piezo.pop_front();
+        if (endXreached) diffs[0].pop_front();
         filter(&diffs[0]);
         curveMems->setSamples(t,diffs.at(0));
     }

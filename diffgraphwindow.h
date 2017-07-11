@@ -28,10 +28,10 @@ private:
     QwtPlotPanner *d_panner;
     QwtPlotCurve *curveMems,*curvePiezo,*curveDiff;
     QwtPlotGrid *grid;
-    QVector<qreal> mems,piezo,diff,t;
+    QVector<qreal> mems,piezo,diff,t,tMems;
     QVector<QVector<qreal>> diffs;
     quint16 samplingFreq;
-    quint16 callCounter;
+    quint16 callCounter,callCounterMems;
     qreal angle3,angle2,angle1,angle0,prevMaxX;
     bool endXreached;
     qreal out;

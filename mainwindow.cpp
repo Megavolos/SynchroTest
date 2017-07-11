@@ -282,7 +282,7 @@ void MainWindow::on_MemsStepChagned(double step)
 void MainWindow::Print(QByteArray data)
 {
 
-    qreal MEMS0_angle,MEMS1_angle,PIEZO0_angle,PIEZO1_angle,MEMS_diff,PIEZO_diff;
+
     if (ui->actionStart->isChecked() &&startRecieved<4)
     {
         for (int i=0; i<data.size();i++)
@@ -306,8 +306,8 @@ void MainWindow::Print(QByteArray data)
            // if (writeDialog->getWriteEnabledState()) datastream<<data.at(i);
             switch (channelSwitch)  {
             case 0:
-                if (PIEZO1.getStart()) MEMS0.addSample((quint8)data.at(i));
-                if (PIEZO1.getSignalEnd())
+                if (PIEZO0.getStart()) MEMS0.addSample((quint8)data.at(i));
+                if (PIEZO0.getSignalEnd())
                     {
                        //
                         MEMS0.filter();
@@ -315,9 +315,8 @@ void MainWindow::Print(QByteArray data)
                         MEMS0.clear();
                         ui->qwtPlot->replot();
                         PIEZO0.setSignalEnd(false);
-                        MEMS0_angle=MEMS0.measure();
-                        ui->MEMS0_angle_label->setText(QString::number(MEMS0_angle,'f',2));
-                        diffWindow->setAngleSample(0,MEMS0_angle);
+
+                      //  diffWindow->setAngleSample(0,MEMS0_angle);
                     }
 
                 break;
@@ -339,10 +338,16 @@ void MainWindow::Print(QByteArray data)
                         {
                             curvesPiezo.at(0)->setSamples(*PIEZO0.getTime(),*PIEZO0.data());
                             ui->qwtPlot_2->replot();
+                            MEMS0.getTime();
+                            MEMS0_angle=MEMS0.measure();
+                            diffWindow->setAngleSample(0,MEMS0_angle);
+
                             if(ui->IntegratePiezo->isChecked())
                             {
                                 ui->qwtPlot_2->repaint();
                                 PIEZO0_angle=PIEZO0.measure();
+
+                                ui->MEMS0_angle_label->setText(QString::number(MEMS0_angle,'f',2));
                                 ui->PIEZO0_angle_label->setText(QString::number(PIEZO0_angle,'f',2));
                                 diffWindow->setAngleSample(1,PIEZO0_angle);
                             }
@@ -366,10 +371,8 @@ void MainWindow::Print(QByteArray data)
                     ui->qwtPlot->replot();
                     PIEZO1.setSignalEnd(false);
                 }
-                    MEMS1_angle=MEMS1.measure();
-                    ui->MEMS1_angle_label->setText(QString::number(MEMS1_angle,'f',2));
-                    MEMS_diff=MEMS0_angle-MEMS1_angle;
-                    diffWindow->setAngleSample(2,MEMS1_angle);
+
+
                     ui->MEMS_diff_label->setText((QString::number(MEMS_diff,'f',2)));
                 break;
             case 3:
@@ -389,14 +392,22 @@ void MainWindow::Print(QByteArray data)
                         {
                             curvesPiezo.at(1)->setSamples(*PIEZO1.getTime(),*PIEZO1.data());
                             ui->qwtPlot_2->replot();
+                            MEMS1.getTime();
+                            MEMS1_angle=MEMS1.measure();
+                            diffWindow->setAngleSample(2,MEMS1_angle);
+
                             if(ui->IntegratePiezo->isChecked())
                             {
                                 ui->qwtPlot_2->repaint();
 
                                 PIEZO1_angle=PIEZO1.measure();
+
+                                ui->MEMS1_angle_label->setText(QString::number(MEMS1_angle,'f',2));
                                 ui->PIEZO1_angle_label->setText(QString::number(PIEZO1_angle,'f',2));
+                                MEMS_diff=MEMS0_angle-MEMS1_angle;
+                                ui->MEMS_diff_label->setText(QString::number(MEMS_diff,'f',2));
                                 diffWindow->setAngleSample(3,PIEZO1_angle);
-                                PIEZO_diff=PIEZO1_angle-PIEZO0_angle;
+                           //     PIEZO_diff=PIEZO1_angle-PIEZO0_angle;
                             }
                         }
                         else

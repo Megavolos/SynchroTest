@@ -192,11 +192,13 @@ QVector<qreal>* Sensor::getTime()
     //максимальное значение по x = xMax
     //период дескритизации = T
     //количество семплов на экране = xMax/T
+
     qreal xMax;
     quint32 numPoints;
     qreal T=1/(qreal)getSamplingFrequencyOneChannel();
     xMax= plot->axisScaleDiv(QwtPlot::xBottom).interval().maxValue();
     //нужно меньше точек по Х сделать, а то массив забит лишними данными
+
     numPoints = _data.size();
     x.resize(numPoints);
     for (int i=1; i<numPoints;i++)
@@ -274,20 +276,39 @@ qreal Sensor::measure()
     QwtScaleDiv scalediv;
     qreal T=1/(qreal)getSamplingFrequencyOneChannel();
     qint16 numPoints;
-    quint8 posMax=0;
+    quint32 posMax=0;
 
     interval = plot->axisScaleDiv(QwtPlot::xBottom).interval();
     scalediv = plot->axisScaleDiv(QwtPlot::xBottom);
     max_x=_data.size();
+    if (max_x==0) return 0;
     min_x=0;
+
     interval = plot->axisScaleDiv(QwtPlot::yRight).interval();
     numPoints = max_x;
-    for (int i=0;i<_data.size();i++)
+
+    if (isMems)
     {
-        if (_data.at(max_x-i-1)>200)
+        qreal max_m;
+        max_m=_data.first();
+        for (int i=0; i<_data.size();i++)
         {
-            posMax=max_x-i-1;
-            break;
+            if (_data.at(i)>max_m)
+            {
+                max_m=_data.at(i);
+                posMax=i;
+            }
+        }
+    }
+    else
+    {
+        for (int i=0;i<_data.size();i++)
+        {
+            if (_data.at(max_x-i-1)>200)
+            {
+                posMax=max_x-i-1;
+                break;
+            }
         }
     }
     level1=_data.at(posMax)*levelmin;
@@ -342,7 +363,7 @@ void Sensor::clear()
 {
     _data.clear();
     start=false;
-    x.clear();
+    if (!isMems) x.clear();
     peak=0;
     peakPrev=0;
 
