@@ -254,7 +254,7 @@ void MainWindow::on_PiezoLimitChagned(double limit)
 
 void MainWindow::on_PiezoStepChagned(double step)
 {
-     bool ok;
+
      qreal max_x;
      QwtInterval interval;
      //double step=diagramSettings->tStepPiezo->text().toDouble(&ok);
@@ -268,7 +268,7 @@ void MainWindow::on_PiezoStepChagned(double step)
 
 void MainWindow::on_MemsStepChagned(double step)
 {
-    bool ok;
+
     qreal max_x;
     QwtInterval interval;
 
@@ -281,7 +281,7 @@ void MainWindow::on_MemsStepChagned(double step)
 
 void MainWindow::Print(QByteArray data)
 {
-    bool ok;
+
     qreal MEMS0_angle,MEMS1_angle,PIEZO0_angle,PIEZO1_angle,MEMS_diff,PIEZO_diff;
     if (ui->actionStart->isChecked() &&startRecieved<4)
     {
