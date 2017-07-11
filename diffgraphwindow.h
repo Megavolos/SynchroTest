@@ -17,10 +17,10 @@ class diffGraphWindow : public QDialog
 public:
     explicit diffGraphWindow(QWidget *parent = 0);
     ~diffGraphWindow();
-    void setMemsAngleSample (qreal angle);
-    void setPiezoAngleSample (quint8 channel, qreal angle);
+
+    void setAngleSample (quint8 channel, qreal angle);
     void setDiffSample(qreal diff);
-    void filter();
+    void filter(QVector<qreal>* diffsP);
 
 private:
     Ui::diffGraphWindow *ui;
@@ -29,9 +29,10 @@ private:
     QwtPlotCurve *curveMems,*curvePiezo,*curveDiff;
     QwtPlotGrid *grid;
     QVector<qreal> mems,piezo,diff,t;
+    QVector<QVector<qreal>> diffs;
     quint16 samplingFreq;
     quint16 callCounter;
-    qreal angle1,angle0,prevMaxX;
+    qreal angle3,angle2,angle1,angle0,prevMaxX;
     bool endXreached;
     qreal out;
 

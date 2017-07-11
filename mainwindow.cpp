@@ -315,8 +315,9 @@ void MainWindow::Print(QByteArray data)
                         MEMS0.clear();
                         ui->qwtPlot->replot();
                         PIEZO0.setSignalEnd(false);
-                      //  MEMS0_angle=MEMS0.measure();
-                       // ui->MEMS0_angle_label->setText(QString::number(MEMS0_angle,'f',2));
+                        MEMS0_angle=MEMS0.measure();
+                        ui->MEMS0_angle_label->setText(QString::number(MEMS0_angle,'f',2));
+                        diffWindow->setAngleSample(0,MEMS0_angle);
                     }
 
                 break;
@@ -329,7 +330,6 @@ void MainWindow::Print(QByteArray data)
                 {
                     if (PIEZO0.isSignalEnd())
                     {
-
                         if(ui->IntegratePiezo->isChecked())
                         {
                             PIEZO0.integrate();
@@ -342,25 +342,17 @@ void MainWindow::Print(QByteArray data)
                             if(ui->IntegratePiezo->isChecked())
                             {
                                 ui->qwtPlot_2->repaint();
-
                                 PIEZO0_angle=PIEZO0.measure();
                                 ui->PIEZO0_angle_label->setText(QString::number(PIEZO0_angle,'f',2));
-                                diffWindow->setPiezoAngleSample(0,PIEZO0_angle);
-
-
-
+                                diffWindow->setAngleSample(1,PIEZO0_angle);
                             }
-
                         }
                         else
                         {
                             MEMS0.clear();
                             PIEZO0.setSignalEnd(false);
-
                         }
                         PIEZO0.clear();
-
-                       //
                     }
                 }
                 break;
@@ -373,15 +365,12 @@ void MainWindow::Print(QByteArray data)
                     MEMS1.clear();
                     ui->qwtPlot->replot();
                     PIEZO1.setSignalEnd(false);
-
                 }
-
-                       // MEMS1_angle=MEMS1.measure();
-                       // ui->MEMS1_angle_label->setText(QString::number(MEMS1_angle,'f',2));
-                       // MEMS_diff=MEMS0_angle-MEMS1_angle;
-                       // ui->MEMS_diff_label->setText((QString::number(MEMS_diff,'f',2)));
-
-
+                    MEMS1_angle=MEMS1.measure();
+                    ui->MEMS1_angle_label->setText(QString::number(MEMS1_angle,'f',2));
+                    MEMS_diff=MEMS0_angle-MEMS1_angle;
+                    diffWindow->setAngleSample(2,MEMS1_angle);
+                    ui->MEMS_diff_label->setText((QString::number(MEMS_diff,'f',2)));
                 break;
             case 3:
                 PIEZO1.addSample((quint8)data.at(i));
@@ -406,20 +395,16 @@ void MainWindow::Print(QByteArray data)
 
                                 PIEZO1_angle=PIEZO1.measure();
                                 ui->PIEZO1_angle_label->setText(QString::number(PIEZO1_angle,'f',2));
-                                diffWindow->setPiezoAngleSample(1,PIEZO1_angle);
+                                diffWindow->setAngleSample(3,PIEZO1_angle);
                                 PIEZO_diff=PIEZO1_angle-PIEZO0_angle;
-                                
-
                             }
                         }
                         else
                         {
                             MEMS1.clear();
                             PIEZO1.setSignalEnd(false);
-
                         }
                         PIEZO1.clear();
-
                     }
                 }
                 break;

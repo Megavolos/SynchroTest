@@ -49,20 +49,16 @@ diffGraphWindow::diffGraphWindow(QWidget *parent) :
     prevMaxX=0;
     angle1=0,angle0=0;
     out=0;
+    diffs.resize(2);
 
 }
 
 
-void diffGraphWindow::setMemsAngleSample(qreal angle)
-{
 
-}
-void diffGraphWindow::setPiezoAngleSample(quint8 channel, qreal angle)
-{
-    quint16 pixel1,pixel2,pixels,maxPoints;
-    qreal diff;
-    qreal T;
-    qreal n;
+
+void diffGraphWindow::setAngleSample(quint8 channel, qreal angle)
+{ 
+
     qreal maxX = ui->qwtPlot->axisScaleDiv(QwtPlot::xBottom).interval().maxValue();
     maxX=quint16(maxX);
     //общее кол-во пикселей = poin2-point1
@@ -75,46 +71,46 @@ void diffGraphWindow::setPiezoAngleSample(quint8 channel, qreal angle)
         callCounter=0;
        // ui->qwtPlot->setAxisScale(QwtPlot::xBottom,0,maxX,2 );
         t.clear();
-        piezo.clear();
+        diffs[0].clear();
+        diffs[1].clear();
     }
 
     prevMaxX=maxX;
     if (qIsNaN(angle))
     {
-        if (piezo.isEmpty())
+        if (channel == 1 || channel == 3)
         {
-            angle=0;
+            if (diffs[1].isEmpty())
+            {
+                angle=0;
+            }
+            else
+            {
+                angle=diffs[1].last();
+            }
         }
         else
         {
-            angle=piezo.last();
+            if (diffs[0].isEmpty())
+            {
+                angle=0;
+            }
+            else
+            {
+                angle=diffs[0].last();
+            }
         }
-    }
-    if (channel==0)
-    {
-       angle0=angle;
-       if (angle1==0)
-       {
-           return;
-       }
-       diff=angle1-angle0;
-       angle0=0;
-       if (!endXreached)
-       {
-           callCounter++;
-           t.append(callCounter);
-       }
-    }
 
+    }
+    // Пьезо
     if (channel==1)
     {
        angle1=angle;
-
-       if (angle0==0)
+       if (angle3==0)
        {
            return;
        }
-       diff=angle1-angle0;
+       diffs[1].append(angle3-angle1);
        angle1=0;
        if (!endXreached)
        {
@@ -123,22 +119,74 @@ void diffGraphWindow::setPiezoAngleSample(quint8 channel, qreal angle)
        }
     }
 
+    if (channel==3)
+    {
+       angle3=angle;
 
-    piezo.append(diff);
-    if (callCounter==maxX) endXreached=true;
-    if (endXreached) piezo.pop_front();
-    filter();
-    curvePiezo->setSamples(t,piezo);
+       if (angle1==0)
+       {
+           return;
+       }
+       diffs[1].append(angle3-angle1);
+       angle3=0;
+       if (!endXreached)
+       {
+           callCounter++;
+           t.append(callCounter);
+       }
+    }
+    //MEMS
+    if (channel==0)
+    {
+       angle0=angle;
+       if (angle2==0)
+       {
+           return;
+       }
+       diffs[0].append(angle2-angle0);
+       angle0=0;
+    }
+
+    if (channel==2)
+    {
+       angle2=angle;
+
+       if (angle0==0)
+       {
+           return;
+       }
+       diffs[0].append(angle2-angle0);
+       angle2=0;
+    }
+
+    if (channel == 1 || channel == 3)
+    {
+
+        if (callCounter==maxX) endXreached=true;
+        if (endXreached) piezo.pop_front();
+        filter(&diffs[1]);
+        curvePiezo->setSamples(t,diffs.at(1));
+
+    }
+    if (channel == 0 || channel == 2)
+    {
+
+        if (callCounter==maxX) endXreached=true;
+        if (endXreached) piezo.pop_front();
+        filter(&diffs[0]);
+        curveMems->setSamples(t,diffs.at(0));
+    }
+
     ui->qwtPlot->replot();
 
 }
-void diffGraphWindow::filter()              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
+void diffGraphWindow::filter(QVector<qreal>* diffsP)              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
 {
 
-    if (piezo.size()>1)
+    if (diffsP->size()>1)
     {
-        out=ui->LPFcoeff->value()*piezo.last() + (1.0-ui->LPFcoeff->value())*out;                   //сам фильтр
-        piezo[(piezo.size()-1)]=out;
+        out=ui->LPFcoeff->value()*diffsP->last() + (1.0-ui->LPFcoeff->value())*out;                   //сам фильтр
+        (*diffsP)[(diffsP->size()-1)]=out;
     }
 
 }

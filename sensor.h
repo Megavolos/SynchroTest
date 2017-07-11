@@ -11,6 +11,7 @@ class Sensor : public QObject
     Q_OBJECT
     static double levelmax,levelmin;
     static int waitPositive, waitEnd;
+    static bool zeroLevelMeasuring;
 public:
 
     Sensor();
@@ -42,6 +43,7 @@ public:
     bool searchMax();
     bool clearMems(void);
     void setSignalEnd(bool state);
+    void setZeroLevelMeasuring(bool state);
 public slots:
     void setFSLSlot(int arg1);
     void setLevelMin(double level);
@@ -57,7 +59,7 @@ private:
     qint16 startLevel;
     QVector<qreal> _data, x;
     qreal LPFcoeff;
-    qreal peak, peakPrev,min,max,minPrev,maxPrev,calibr;
+    qreal peak, peakPrev,min,max,minPrev,maxPrev,calibr,zerolevel;
 
 
     quint8 falseSignalLevel;

@@ -4,6 +4,7 @@ double Sensor::levelmax=1;
 double Sensor::levelmin=0;
 int Sensor::waitPositive=25;
 int Sensor::waitEnd=25;
+bool Sensor::zeroLevelMeasuring=false;
 Sensor::Sensor()
 {
     startLevel=5;
@@ -18,11 +19,17 @@ Sensor::Sensor()
     calibr=1;
     levelmax=0.9;
     levelmin=0;
+    zerolevel=0;
 
 }
 void Sensor::SetWaitPositive(int value)
 {
     waitPositive=value;
+}
+
+void Sensor::setZeroLevelMeasuring(bool state)
+{
+    zeroLevelMeasuring=state;
 }
 
 void Sensor::SetWaitEnd(int value)
@@ -65,9 +72,13 @@ bool Sensor::isSignalPresent()
 {
     if (!isMems)
     {
+        if (!_data.isEmpty() && zeroLevelMeasuring)
+        {
+            zerolevel=_data.last();
+        }
         if (!getStart() && !_data.isEmpty())
         {
-            if (_data.last() > 0)
+            if (_data.last() > zerolevel)
             {
                 wait++;
                 if (wait>waitPositive)
@@ -118,7 +129,7 @@ void Sensor::integrate()
     QVector<qreal> out(_data.size());
     for (int i=1; i<_data.size(); i++)
     {
-        if (_data.at(i)>startLevel)
+        if (_data.at(i)>zerolevel)
         {
             out[i]=_data.at(i) + out.at(i-1);
         }

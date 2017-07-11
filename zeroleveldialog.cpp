@@ -14,23 +14,11 @@ zeroLevelDialog::~zeroLevelDialog()
     delete ui;
 }
 
-void zeroLevelDialog::setPiezo0Pointer(Sensor *piezo0)
+void zeroLevelDialog::setPiezoPointer(Sensor *piezo)
 {
-    PIEZO0=piezo0;
+    PIEZO=piezo;
 }
-void zeroLevelDialog::setPiezo1Pointer(Sensor *piezo1)
-{
-    PIEZO1=piezo1;
-}
-qreal zeroLevelDialog::getZeroLevelPiezo0()
-{
-    if (!PIEZO0->data()->isEmpty() && state) zeroLevelPiezo0=PIEZO0->data()->last();
-    return zeroLevelPiezo0;
-}
-qreal zeroLevelDialog::getZeroLevelPiezo1()
-{
-    return zeroLevelPiezo1;
-}
+
 
 void zeroLevelDialog::on_zeroLevelCalcButton_clicked()
 {
@@ -38,11 +26,13 @@ void zeroLevelDialog::on_zeroLevelCalcButton_clicked()
     {
         state=true;
         ui->zeroLevelCalcButton->setText("Остановить");
+        PIEZO->setZeroLevelMeasuring(state);
     }
     else
     {
         state=false;
         ui->zeroLevelCalcButton->setText("Начать");
+        PIEZO->setZeroLevelMeasuring(state);
     }
 
 }
